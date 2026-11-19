@@ -1,0 +1,3118 @@
+<!DOCTYPE html>
+<html lang="vi" class="font-scale-md">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Chụp Đáy Mắt & Bệnh Võng Mạc</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6.4 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ExcelJS CDN for 100% Styled .xlsx Report Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter {
+            animation: slideInRight 0.25s ease-out forwards;
+        }
+
+        /* Sidebar smooth transition */
+        #leftMenuBar {
+            transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #leftMenuBar.collapsed .menu-label,
+        #leftMenuBar.collapsed .menu-badge {
+            display: none !important;
+        }
+        #leftMenuBar.collapsed .menu-item {
+            justify-content: center;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        #leftMenuBar.collapsed .menu-icon-wrap {
+            margin-right: 0 !important;
+        }
+
+        /* =========================================================
+           FONT SIZE SCALING (Nhỏ - Chuẩn - To)
+           Scales both rem-based Tailwind utilities and fixed px classes
+           ========================================================= */
+        html.font-scale-sm { font-size: 14px; }
+        html.font-scale-md { font-size: 16px; }
+        html.font-scale-lg { font-size: 18px; }
+
+        html.font-scale-sm .text-\[10px\] { font-size: 9.5px !important; }
+        html.font-scale-sm .text-\[11px\] { font-size: 10px !important; }
+
+        html.font-scale-lg .text-\[10px\] { font-size: 11.5px !important; }
+        html.font-scale-lg .text-\[11px\] { font-size: 13px !important; }
+        html.font-scale-lg input:not([type="checkbox"]):not([type="radio"]),
+        html.font-scale-lg select {
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
+        }
+
+        /* =========================================================
+           DARK MODE HIGH-CONTRAST OVERRIDES
+           ========================================================= */
+        body.theme-dark {
+            background-color: #0b1120 !important;
+            color: #f1f5f9 !important;
+        }
+        body.theme-dark .surface-card {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        body.theme-dark .surface-sub {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+        body.theme-dark .surface-header-bar {
+            background-color: #172554 !important;
+            border-color: #1d4ed8 !important;
+            color: #f8fafc !important;
+        }
+        body.theme-dark .sticky-entry-bar {
+            background-color: rgba(15, 23, 42, 0.96) !important;
+            border-color: #1e3a8a !important;
+        }
+
+        /* Neutral light backgrounds -> crisp dark surfaces */
+        body.theme-dark .bg-white,
+        body.theme-dark .bg-slate-50,
+        body.theme-dark .bg-slate-50\/50,
+        body.theme-dark .bg-slate-50\/60,
+        body.theme-dark .bg-slate-100,
+        body.theme-dark .bg-slate-200 {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+        body.theme-dark .bg-blue-50,
+        body.theme-dark .bg-blue-50\/60,
+        body.theme-dark .bg-blue-50\/90,
+        body.theme-dark .bg-sky-50 {
+            background-color: #172554 !important;
+            border-color: #1e40af !important;
+            color: #dbeafe !important;
+        }
+        body.theme-dark .bg-indigo-50,
+        body.theme-dark .bg-indigo-50\/30,
+        body.theme-dark .bg-indigo-50\/40,
+        body.theme-dark .bg-indigo-50\/70,
+        body.theme-dark .bg-indigo-100\/70 {
+            background-color: #1e1b4b !important;
+            border-color: #3730a3 !important;
+            color: #e0e7ff !important;
+        }
+        body.theme-dark .bg-emerald-50,
+        body.theme-dark .bg-emerald-50\/60,
+        body.theme-dark .bg-emerald-50\/70 {
+            background-color: #064e3b !important;
+            border-color: #047857 !important;
+            color: #d1fae5 !important;
+        }
+        body.theme-dark .bg-amber-50,
+        body.theme-dark .bg-amber-50\/60,
+        body.theme-dark .bg-amber-50\/70 {
+            background-color: #451a03 !important;
+            border-color: #92400e !important;
+            color: #fef3c7 !important;
+        }
+        body.theme-dark .bg-rose-50,
+        body.theme-dark .bg-rose-50\/60 {
+            background-color: #4c0519 !important;
+            border-color: #9f1239 !important;
+            color: #ffe4e6 !important;
+        }
+
+        /* Hover states in dark mode */
+        body.theme-dark .hover\:bg-slate-50:hover,
+        body.theme-dark .hover\:bg-slate-100:hover,
+        body.theme-dark .hover\:bg-slate-200:hover,
+        body.theme-dark .hover\:bg-blue-50:hover,
+        body.theme-dark .hover\:bg-blue-100:hover,
+        body.theme-dark .hover\:bg-sky-100:hover {
+            background-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        /* Borders in dark mode */
+        body.theme-dark .border-slate-100,
+        body.theme-dark .border-slate-200,
+        body.theme-dark .border-slate-300,
+        body.theme-dark .border-blue-100,
+        body.theme-dark .border-blue-200,
+        body.theme-dark .border-blue-300,
+        body.theme-dark .border-indigo-200,
+        body.theme-dark .border-emerald-200,
+        body.theme-dark .border-amber-200,
+        body.theme-dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+            border-color: #334155 !important;
+        }
+
+        /* Inputs, Selects, Textareas in dark mode */
+        body.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+        body.theme-dark select,
+        body.theme-dark textarea {
+            background-color: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+        }
+        body.theme-dark input::placeholder {
+            color: #64748b !important;
+        }
+
+        /* High-contrast text inversion in dark mode */
+        body.theme-dark label,
+        body.theme-dark .text-slate-900,
+        body.theme-dark .text-slate-800,
+        body.theme-dark .text-slate-700 {
+            color: #f1f5f9 !important;
+        }
+        body.theme-dark .text-slate-600,
+        body.theme-dark .text-slate-500 {
+            color: #cbd5e1 !important;
+        }
+        body.theme-dark .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+        body.theme-dark .text-blue-950,
+        body.theme-dark .text-blue-900,
+        body.theme-dark .text-blue-800,
+        body.theme-dark .text-blue-700,
+        body.theme-dark .text-sky-950,
+        body.theme-dark .text-sky-900 {
+            color: #93c5fd !important;
+        }
+        body.theme-dark .text-indigo-950,
+        body.theme-dark .text-indigo-900,
+        body.theme-dark .text-indigo-800 {
+            color: #c7d2fe !important;
+        }
+        body.theme-dark .text-emerald-950,
+        body.theme-dark .text-emerald-900,
+        body.theme-dark .text-emerald-800,
+        body.theme-dark .text-emerald-700,
+        body.theme-dark .text-teal-950 {
+            color: #6ee7b7 !important;
+        }
+        body.theme-dark .text-amber-900,
+        body.theme-dark .text-amber-800 {
+            color: #fcd34d !important;
+        }
+        body.theme-dark .text-rose-900,
+        body.theme-dark .text-rose-800,
+        body.theme-dark .text-rose-700 {
+            color: #fda4af !important;
+        }
+        /* Keep white text on solid saturated buttons */
+        body.theme-dark .bg-blue-700,
+        body.theme-dark .bg-blue-900,
+        body.theme-dark .bg-emerald-700,
+        body.theme-dark .bg-emerald-600,
+        body.theme-dark .bg-rose-600 {
+            color: #ffffff !important;
+        }
+        body.theme-dark .bg-amber-500 {
+            color: #0f172a !important;
+        }
+        body.theme-dark table thead tr {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+        body.theme-dark table tbody tr {
+            background-color: #1e293b !important;
+        }
+        body.theme-dark table tbody tr:hover {
+            background-color: #273549 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col relative">
+
+    <!-- TOP PAGE HEADER -->
+    <header id="mainTopHeader" class="bg-blue-900 border-b border-blue-950 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-[1600px] mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between gap-3">
+            <!-- Left: Menu Toggle + Title -->
+            <div class="flex items-center space-x-3">
+                <button onclick="app.toggleSidebar()" title="Mở rộng / Thu gọn thanh menu" class="bg-blue-800 hover:bg-blue-700 text-white w-9 h-9 rounded-xl border border-blue-700 transition flex items-center justify-center shadow-sm shrink-0">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+                <div>
+                    <h1 class="text-sm sm:text-base font-bold tracking-tight text-white">
+                        Quản Lý Chụp Đáy Mắt &amp; Bệnh Võng Mạc
+                    </h1>
+                    <p id="headerSubtitle" class="text-[11px] text-blue-200 font-medium">Khoa Mắt - BV ĐKKV Thủ Đức</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN SHELL: LEFT MENUBAR + RIGHT WORKSPACE -->
+    <div class="flex-grow max-w-[1600px] w-full mx-auto flex items-stretch relative">
+
+        <!-- COLLAPSIBLE LEFT MENUBAR -->
+        <aside id="leftMenuBar" class="w-64 shrink-0 bg-white border-r border-slate-200 surface-card flex flex-col select-none z-30">
+            <nav class="p-2.5 space-y-1.5 sticky top-[58px]" id="leftMenuNav">
+                <!-- 1. Nhập liệu -->
+                <button type="button" onclick="app.switchView('entry')" id="nav-entry" title="Nhập liệu" class="menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition bg-blue-700 text-white shadow-sm">
+                    <div class="flex items-center min-w-0">
+                        <span class="menu-icon-wrap w-6 text-center mr-2.5 shrink-0">
+                            <i class="fa-solid fa-file-medical text-sm"></i>
+                        </span>
+                        <span class="menu-label text-left truncate">Nhập liệu</span>
+                    </div>
+                </button>
+
+                <!-- 2. Danh sách -->
+                <button type="button" onclick="app.switchView('list')" id="nav-list" title="Danh sách" class="menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition text-slate-700 hover:bg-slate-100">
+                    <div class="flex items-center min-w-0">
+                        <span class="menu-icon-wrap w-6 text-center mr-2.5 shrink-0">
+                            <i class="fa-solid fa-table-list text-sm text-blue-700"></i>
+                        </span>
+                        <span class="menu-label text-left truncate">Danh sách</span>
+                    </div>
+                    <span id="menuRecordBadge" class="menu-badge text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 shrink-0">0</span>
+                </button>
+
+                <!-- 3. Thống kê -->
+                <button type="button" onclick="app.switchView('stats')" id="nav-stats" title="Thống kê" class="menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition text-slate-700 hover:bg-slate-100">
+                    <div class="flex items-center min-w-0">
+                        <span class="menu-icon-wrap w-6 text-center mr-2.5 shrink-0">
+                            <i class="fa-solid fa-chart-pie text-sm text-emerald-600"></i>
+                        </span>
+                        <span class="menu-label text-left truncate">Thống kê</span>
+                    </div>
+                </button>
+
+                <!-- 4. Cài đặt biến -->
+                <button type="button" onclick="app.switchView('variables')" id="nav-variables" title="Cài đặt biến" class="menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition text-slate-700 hover:bg-slate-100">
+                    <div class="flex items-center min-w-0">
+                        <span class="menu-icon-wrap w-6 text-center mr-2.5 shrink-0">
+                            <i class="fa-solid fa-sliders text-sm text-amber-600"></i>
+                        </span>
+                        <span class="menu-label text-left truncate">Cài đặt biến</span>
+                    </div>
+                </button>
+
+                <!-- 5. Cài Đặt Hệ Thống & Giao Diện -->
+                <button type="button" onclick="app.switchView('settings')" id="nav-settings" title="Cài Đặt Hệ Thống & Giao Diện" class="menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition text-slate-700 hover:bg-slate-100">
+                    <div class="flex items-center min-w-0">
+                        <span class="menu-icon-wrap w-6 text-center mr-2.5 shrink-0">
+                            <i class="fa-solid fa-gear text-sm text-indigo-600"></i>
+                        </span>
+                        <span class="menu-label text-left leading-tight">Cài Đặt Hệ Thống &amp; Giao Diện</span>
+                    </div>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- RIGHT MAIN CONTENT AREA -->
+        <main class="flex-1 min-w-0 flex flex-col">
+
+            <!-- ===================================================================== -->
+            <!-- VIEW 1: NHẬP LIỆU                                                     -->
+            <!-- ===================================================================== -->
+            <section id="view-entry" class="flex flex-col flex-grow">
+                <!-- STICKY GROUP NAVIGATION BAR PINNED FLUSH BELOW PAGE HEADER -->
+                <div id="entryStickyGroupBar" class="sticky-entry-bar sticky z-30 bg-blue-50/95 backdrop-blur-sm border-b-2 border-blue-200 shadow-sm px-3 sm:px-5 py-2.5 flex flex-col xl:flex-row xl:items-center justify-between gap-2.5">
+                    <!-- Title + Mode Badge -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse shrink-0"></div>
+                        <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-blue-950">
+                            Nhập Thông Tin Bệnh Nhân
+                        </h2>
+                        <span id="formModeBadge" class="text-[11px] font-bold px-3 py-0.5 rounded-full bg-blue-900 text-white border border-blue-950 shadow-sm">
+                            Chế độ: Thêm mới
+                        </span>
+                    </div>
+
+                    <!-- Quick Group Navigation Tabs (F1, F2, F3, F4) -->
+                    <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Chuyển nhanh nhóm nhập liệu">
+                        <button type="button" onclick="app.activateGroup('g1')" id="groupTab-g1" class="group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-blue-700 text-white border-blue-800 shadow-sm flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.2 rounded bg-black/25 text-amber-200 font-mono text-[10px]">F1</span>
+                            <span>1. Hành chính</span>
+                        </button>
+                        <button type="button" onclick="app.activateGroup('g2')" id="groupTab-g2" class="group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-700 border-slate-300 hover:bg-blue-100 hover:text-blue-900 flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 font-mono text-[10px]">F2</span>
+                            <span>2. Bệnh sử &amp; Thị lực</span>
+                        </button>
+                        <button type="button" onclick="app.activateGroup('g3')" id="groupTab-g3" class="group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-700 border-slate-300 hover:bg-indigo-100 hover:text-indigo-900 flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 font-mono text-[10px]">F3</span>
+                            <span>3. Cybersight AI</span>
+                        </button>
+                        <button type="button" onclick="app.activateGroup('g4')" id="groupTab-g4" class="group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-700 border-slate-300 hover:bg-teal-100 hover:text-teal-900 flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 font-mono text-[10px]">F4</span>
+                            <span>4. Kết luận &amp; Xử trí</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Entry Form Body -->
+                <div class="p-3 sm:p-5">
+                    <div class="bg-white border border-blue-200 rounded-2xl shadow-sm p-4 sm:p-5 surface-card">
+                        <form id="patientForm" onsubmit="app.savePatient(event)" class="space-y-4">
+                            <input type="hidden" id="editIndex" value="">
+
+                            <!-- Dynamic 4-Group Form Layout (Quick Paste is embedded inside Group 1) -->
+                            <div id="inputLayoutContainer" class="space-y-4"></div>
+
+                            <!-- Form Action Buttons -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
+                                <div class="text-[11px] text-slate-500 font-medium">
+                                    <i class="fa-regular fa-keyboard mr-1 text-blue-600"></i>
+                                    Định dạng ngày chuẩn: <strong class="text-slate-700">dd/mm/yyyy</strong> (VD: 19/11/2026)
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button type="button" id="cancelEditBtn" onclick="app.resetForm(true)" class="hidden px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition">
+                                        Hủy chỉnh sửa
+                                    </button>
+                                    <button type="button" onclick="app.resetForm(true)" title="Phím tắt F6" class="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-300 text-xs font-bold transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Thêm Mới</span>
+                                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-sky-200/80 text-sky-950">F6</span>
+                                    </button>
+                                    <button type="submit" id="submitBtn" title="Phím tắt F5" class="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold transition shadow-md flex items-center gap-2">
+                                        <i class="fa-solid fa-floppy-disk"></i>
+                                        <span>Lưu Hồ Sơ</span>
+                                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-900 text-blue-100">F5</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================================================================== -->
+            <!-- VIEW 2: DANH SÁCH HỒ SƠ BỆNH NHÂN (BẢNG SỐ LIỆU)                      -->
+            <!-- ===================================================================== -->
+            <section id="view-list" class="hidden p-3 sm:p-5">
+                <div class="bg-white border border-blue-200 rounded-2xl shadow-sm p-4 sm:p-5 surface-card space-y-4">
+                    <!-- Header & Month-Year Filter -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-blue-100 bg-blue-50/60 surface-header-bar p-3 rounded-xl border">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-table-list text-blue-700 text-base"></i>
+                            <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-blue-950">
+                                Danh Sách Hồ Sơ Bệnh Nhân
+                            </h2>
+                            <span id="listRecordCount" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-blue-700 text-white">0</span>
+                        </div>
+
+                        <!-- Month - Year Filter Control -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="inline-flex items-center bg-white border border-blue-300 rounded-xl p-1 gap-1 shadow-sm">
+                                <button type="button" onclick="app.setPeriodAll()" id="listPeriodAllBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-blue-700 text-white shadow-sm">
+                                    Tất cả
+                                </button>
+                                <div class="flex items-center gap-1 pl-1">
+                                    <select id="listMonthSelect" onchange="app.handlePeriodPartChange('list')" title="Chọn tháng" class="bg-slate-50 hover:bg-blue-50 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600 cursor-pointer">
+                                        <option value="">Tháng --</option>
+                                        <option value="01">Tháng 01</option>
+                                        <option value="02">Tháng 02</option>
+                                        <option value="03">Tháng 03</option>
+                                        <option value="04">Tháng 04</option>
+                                        <option value="05">Tháng 05</option>
+                                        <option value="06">Tháng 06</option>
+                                        <option value="07">Tháng 07</option>
+                                        <option value="08">Tháng 08</option>
+                                        <option value="09">Tháng 09</option>
+                                        <option value="10">Tháng 10</option>
+                                        <option value="11">Tháng 11</option>
+                                        <option value="12">Tháng 12</option>
+                                    </select>
+                                    <span class="text-slate-400 font-bold">/</span>
+                                    <input type="number" id="listYearInput" min="2000" max="2100" onchange="app.handlePeriodPartChange('list')" oninput="app.handlePeriodPartChange('list')" placeholder="Năm" title="Nhập năm (VD: 2026)" class="w-20 bg-slate-50 text-slate-800 text-xs font-mono font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600 text-center">
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="app.resetForm(true)" class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Thêm hồ sơ mới
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search, Sort, Filter Pills & Batch Delete Toolbar -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-slate-50 surface-sub p-3 rounded-xl border border-slate-200">
+                        <!-- Search Input -->
+                        <div class="relative flex-grow max-w-md">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="searchInput" oninput="app.handleFilterChange()" placeholder="Tìm STT, họ tên, mã AI, mã BHYT, SĐT..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600">
+                        </div>
+
+                        <!-- Filter Pills + Sort Dropdown + Batch Delete -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Status Pills -->
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <button type="button" onclick="app.setQuickFilter('all')" id="pill-all" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-blue-700 text-white border-blue-700 shadow-sm">
+                                    Tất cả
+                                </button>
+                                <button type="button" onclick="app.setQuickFilter('refer')" id="pill-refer" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-600 border-slate-300 hover:bg-rose-50 hover:text-rose-700">
+                                    <i class="fa-solid fa-share text-[9px] mr-0.5"></i> Chuyển tuyến
+                                </button>
+                                <button type="button" onclick="app.setQuickFilter('normal')" id="pill-normal" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-600 border-slate-300 hover:bg-emerald-50 hover:text-emerald-700">
+                                    <i class="fa-solid fa-check text-[9px] mr-0.5"></i> Bình thường
+                                </button>
+                                <button type="button" onclick="app.setQuickFilter('incomplete')" id="pill-incomplete" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-600 border-slate-300 hover:bg-amber-50 hover:text-amber-800">
+                                    <i class="fa-solid fa-circle-exclamation text-[9px] mr-0.5"></i> Chưa đủ HS
+                                </button>
+                            </div>
+
+                            <!-- Sort Selector -->
+                            <div class="relative">
+                                <select id="sortSelect" onchange="app.handleFilterChange()" title="Sắp xếp danh sách" class="bg-white text-slate-700 text-xs font-bold pl-3 pr-7 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-blue-600 cursor-pointer appearance-none">
+                                    <option value="entry_asc">Thứ tự nhập (Cũ → Mới)</option>
+                                    <option value="entry_desc">Thứ tự nhập (Mới → Cũ)</option>
+                                    <option value="stt_asc">STT (Tăng dần)</option>
+                                    <option value="stt_desc">STT (Giảm dần)</option>
+                                    <option value="date_desc">Ngày chụp (Mới nhất)</option>
+                                    <option value="date_asc">Ngày chụp (Cũ nhất)</option>
+                                    <option value="name_asc">Họ tên (A → Z)</option>
+                                </select>
+                                <i class="fa-solid fa-arrow-down-wide-short text-[10px] text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+
+                            <!-- Batch Delete -->
+                            <button type="button" onclick="app.deleteSelectedItems()" id="batchDeleteBtn" class="hidden bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Xóa (<span id="selectedCount">0</span>)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Data Table Container -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse min-w-[1050px]">
+                            <thead>
+                                <tr class="bg-slate-100 border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-700">
+                                    <th class="p-2.5 w-9 text-center">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="app.toggleSelectAll(this)" class="rounded border-slate-300 text-blue-600 w-3.5 h-3.5 cursor-pointer">
+                                    </th>
+                                    <th class="p-2.5 w-14 text-center">(1) STT</th>
+                                    <th class="p-2.5 w-28">(2) Ngày chụp</th>
+                                    <th class="p-2.5 w-32">(3) Mã AI</th>
+                                    <th class="p-2.5 min-w-[170px]">(5) Họ và tên BN</th>
+                                    <th class="p-2.5 w-28">(9–10) Giới / Sinh</th>
+                                    <th class="p-2.5 w-28">(11) Típ ĐTĐ</th>
+                                    <th class="p-2.5 w-44">(21–22) Phân độ MP / MT</th>
+                                    <th class="p-2.5 w-32">(23) Kết quả AI</th>
+                                    <th class="p-2.5 w-44">(26) Xử trí võng mạc</th>
+                                    <th class="p-2.5 w-24 text-center">Hồ sơ</th>
+                                    <th class="p-2.5 w-28 text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientTableBody" class="divide-y divide-slate-200 text-xs"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty Table State -->
+                    <div id="emptyTableState" class="hidden py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-xs font-semibold text-slate-500">Không tìm thấy hồ sơ bệnh nhân nào phù hợp với điều kiện lọc.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================================================================== -->
+            <!-- VIEW 3: THỐNG KÊ - BÁO CÁO & XUẤT DỮ LIỆU (CHUẨN MẪU EXCEL 2026)     -->
+            <!-- ===================================================================== -->
+            <section id="view-stats" class="hidden p-3 sm:p-5">
+                <div class="bg-white border border-emerald-200 rounded-2xl shadow-sm p-4 sm:p-5 surface-card space-y-5">
+                    <!-- Header + Month-Year Filter + Export Data Buttons -->
+                    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-3 border-b border-emerald-200 bg-emerald-50/70 surface-header-bar p-3 rounded-xl border">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-chart-pie text-emerald-700 text-base"></i>
+                            <div>
+                                <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-emerald-950">
+                                    Thống Kê &amp; Báo Cáo Tổng Quan
+                                </h2>
+                                <p id="statsScopeNote" class="text-[11px] text-emerald-800 font-medium">Phạm vi: Tất cả thời gian</p>
+                            </div>
+                        </div>
+
+                        <!-- Month-Year Filter + Export Data Controls -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Month - Year Selector -->
+                            <div class="inline-flex items-center bg-white border border-emerald-300 rounded-xl p-1 gap-1 shadow-sm">
+                                <button type="button" onclick="app.setPeriodAll()" id="statsPeriodAllBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-700 text-white shadow-sm">
+                                    Tất cả
+                                </button>
+                                <div class="flex items-center gap-1 pl-1">
+                                    <select id="statsMonthSelect" onchange="app.handlePeriodPartChange('stats')" title="Chọn tháng" class="bg-slate-50 hover:bg-emerald-50 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-600 cursor-pointer">
+                                        <option value="">Tháng --</option>
+                                        <option value="01">Tháng 01</option>
+                                        <option value="02">Tháng 02</option>
+                                        <option value="03">Tháng 03</option>
+                                        <option value="04">Tháng 04</option>
+                                        <option value="05">Tháng 05</option>
+                                        <option value="06">Tháng 06</option>
+                                        <option value="07">Tháng 07</option>
+                                        <option value="08">Tháng 08</option>
+                                        <option value="09">Tháng 09</option>
+                                        <option value="10">Tháng 10</option>
+                                        <option value="11">Tháng 11</option>
+                                        <option value="12">Tháng 12</option>
+                                    </select>
+                                    <span class="text-slate-400 font-bold">/</span>
+                                    <input type="number" id="statsYearInput" min="2000" max="2100" onchange="app.handlePeriodPartChange('stats')" oninput="app.handlePeriodPartChange('stats')" placeholder="Năm" title="Nhập năm (VD: 2026)" class="w-20 bg-slate-50 text-slate-800 text-xs font-mono font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-600 text-center">
+                                </div>
+                            </div>
+
+                            <!-- Toggle Report Header Config (C3-C7, J3-J7, O3-O9) -->
+                            <button type="button" onclick="app.toggleReportMetaPanel()" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-signature text-blue-700"></i>
+                                <span>Thông tin đầu mẫu (C3–O9)</span>
+                            </button>
+
+                            <!-- Export Full XLSX matching Mẫu báo cáo chụp đáy mắt 2026.xlsx -->
+                            <button type="button" onclick="app.exportExcelTemplate(false)" title="Xuất file Excel (.xlsx) chuẩn 100% mẫu báo cáo 2026" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Xuất Excel (Đầy đủ)</span>
+                            </button>
+
+                            <!-- Export Orbis Anonymized XLSX -->
+                            <button type="button" onclick="app.exportExcelTemplate(true)" title="Xuất file Excel (.xlsx) chuẩn mẫu 2026 gửi Orbis (tự động xóa cột 4–8)" class="bg-amber-500 hover:bg-amber-400 text-slate-900 px-3.5 py-2 rounded-xl text-xs font-extrabold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-shield"></i>
+                                <span>Xuất Orbis (Ẩn 4–8)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Auto-recognized Report Header Metadata Panel (C3-C7, J3-J7, O3-O9) -->
+                    <div id="reportMetaPanel" class="hidden p-4 rounded-2xl border border-blue-200 bg-slate-50/80 surface-sub space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200">
+                            <div>
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+                                    <i class="fa-solid fa-table-cells text-blue-700"></i> Dữ Liệu Tự Động Điền Vào Mẫu Excel (Row 1 – Row 13)
+                                </h3>
+                                <p class="text-[11px] text-slate-500 mt-0.5">
+                                    Các ô <strong>C3–C7</strong>, <strong>J3–J7</strong> và bảng dịch vụ <strong>O3–O9</strong> được nhận diện tự động và ghi trực tiếp vào file Excel khi xuất.
+                                </p>
+                            </div>
+                            <button type="button" onclick="app.syncReportMetaFromPeriod(true)" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-bold transition">
+                                <i class="fa-solid fa-arrows-rotate mr-1"></i> Cập nhật theo kỳ đang chọn
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+                            <!-- C3-C7 & J3-J7 -->
+                            <div class="xl:col-span-5 space-y-3">
+                                <div class="p-3 rounded-xl bg-white border border-slate-200 space-y-2.5">
+                                    <div class="text-[11px] font-extrabold uppercase text-blue-900">1. Thông tin kỳ báo cáo (C3 – C7)</div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="col-span-2">
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">C3 – Đơn vị</label>
+                                            <input type="text" id="meta_C3" oninput="app.saveReportMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">C4 – Năm</label>
+                                            <input type="text" id="meta_C4" oninput="app.saveReportMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">C5 – Tháng</label>
+                                            <input type="text" id="meta_C5" oninput="app.saveReportMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">C6 – Từ ngày</label>
+                                            <input type="text" id="meta_C6" oninput="app.handleDateMaskInput(this); app.saveReportMeta()" placeholder="dd/mm/yyyy" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">C7 – Đến ngày</label>
+                                            <input type="text" id="meta_C7" oninput="app.handleDateMaskInput(this); app.saveReportMeta()" placeholder="dd/mm/yyyy" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-white border border-slate-200 space-y-2.5">
+                                    <div class="text-[11px] font-extrabold uppercase text-blue-900">2. Tổng hợp &amp; Ký duyệt (J3 – J7)</div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">J3 – Tổng lượt chụp</label>
+                                            <input type="text" id="meta_J3" readonly class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-100 text-xs font-mono font-extrabold text-rose-700">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">J4 – Tổng số ca chụp</label>
+                                            <input type="number" id="meta_J4" oninput="app.saveReportMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">J5 – Ngày lập báo cáo</label>
+                                            <input type="text" id="meta_J5" oninput="app.handleDateMaskInput(this); app.saveReportMeta()" placeholder="dd/mm/yyyy" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">J6 – Người lập báo cáo</label>
+                                            <input type="text" id="meta_J6" oninput="app.saveReportMeta()" placeholder="Nhập họ tên..." class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">J7 – Người duyệt báo cáo</label>
+                                            <input type="text" id="meta_J7" oninput="app.saveReportMeta()" placeholder="Nhập họ tên..." class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- O3-O9 Service Table -->
+                            <div class="xl:col-span-7 p-3 rounded-xl bg-white border border-slate-200">
+                                <div class="text-[11px] font-extrabold uppercase text-blue-900 mb-2">
+                                    3. Dịch vụ liên quan hiện được cung cấp tại đơn vị (N3:R9 → O3–O9)
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs border-collapse border border-slate-200">
+                                        <thead>
+                                            <tr class="bg-slate-100 text-[10px] font-extrabold uppercase text-rose-700">
+                                                <th class="p-2 border border-slate-200 text-left">Dịch vụ tại đơn vị (N3–N9)</th>
+                                                <th class="p-2 border border-slate-200 w-24 text-center">Miễn phí (O)</th>
+                                                <th class="p-2 border border-slate-200 w-24 text-center">Thu phí DV (P)</th>
+                                                <th class="p-2 border border-slate-200 w-24 text-center">BHYT chi trả (Q)</th>
+                                                <th class="p-2 border border-slate-200 w-32 text-center">Ghi chú (R)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="serviceMetaTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Stats Content Container -->
+                    <div id="statsDashboardContent" class="space-y-5"></div>
+                </div>
+            </section>
+
+            <!-- ===================================================================== -->
+            <!-- VIEW 4: CÀI ĐẶT BIẾN (FULL PAGE VIEW - NO POPUP)                      -->
+            <!-- ===================================================================== -->
+            <section id="view-variables" class="hidden p-3 sm:p-5">
+                <div class="bg-white border border-amber-200 rounded-2xl shadow-sm p-4 sm:p-5 surface-card space-y-5">
+                    <!-- Page Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-200 bg-amber-50/70 surface-header-bar p-3 rounded-xl border">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-sliders text-amber-600 text-base"></i>
+                            <div>
+                                <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-900">
+                                    Cài Đặt Biến Số &amp; Thứ Tự Trường Nhập Liệu
+                                </h2>
+                                <p class="text-[11px] text-slate-600 font-medium">
+                                    Kéo-thả để sắp xếp thứ tự hiển thị, bấm biểu tượng mắt để bật/tắt trường (trường tắt sẽ không tính vào trạng thái hoàn thành hồ sơ).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" onclick="app.resetFieldLayout()" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-rotate-left"></i> Khôi phục mặc định
+                            </button>
+                            <button type="button" onclick="app.switchView('entry')" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-check"></i> Áp dụng &amp; Nhập liệu
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Full-page 2-Column Variable Configuration -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <!-- Left 7 cols: Reorder & Toggle Fields -->
+                        <div class="lg:col-span-7 bg-slate-50 surface-sub rounded-2xl border border-slate-200 p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-ol text-blue-700"></i> Danh sách &amp; Thứ tự các trường (Cột 1–29 &amp; Tùy chỉnh)
+                                </h3>
+                                <span class="text-[11px] text-slate-500 font-medium">Kéo <i class="fa-solid fa-grip-vertical"></i> để đổi vị trí</span>
+                            </div>
+                            <div id="fieldManagerList" class="space-y-1.5 max-h-[62vh] overflow-y-auto pr-1"></div>
+                        </div>
+
+                        <!-- Right 5 cols: Add / Manage Custom Variables -->
+                        <div class="lg:col-span-5 bg-slate-50 surface-sub rounded-2xl border border-slate-200 p-4 flex flex-col space-y-4">
+                            <div>
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 mb-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-plus-circle text-emerald-600"></i> Thêm biến số tùy chỉnh mới
+                                </h3>
+                                <p class="text-[11px] text-slate-500 mb-3">
+                                    Biến số mới sẽ tự động hiển thị trong <strong>Nhóm 4: Kết luận &amp; Xử trí</strong> và được xuất kèm trong file Excel đầy đủ.
+                                </p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newFieldName" onkeydown="if(event.key==='Enter'){event.preventDefault();app.addCustomField();}" placeholder="VD: HbA1c (%), Thời gian chụp, Bác sĩ đọc..." class="flex-grow px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-medium focus:outline-none focus:border-blue-600">
+                                    <button type="button" onclick="app.addCustomField()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm shrink-0">
+                                        <i class="fa-solid fa-plus mr-1"></i> Thêm
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-200 flex-grow">
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 mb-2.5">
+                                    Danh sách biến số tùy chỉnh đã tạo
+                                </h4>
+                                <div id="customFieldsList" class="space-y-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================================================================== -->
+            <!-- VIEW 5: CÀI ĐẶT HỆ THỐNG & GIAO DIỆN                                  -->
+            <!-- ===================================================================== -->
+            <section id="view-settings" class="hidden p-3 sm:p-5">
+                <div class="bg-white border border-indigo-200 rounded-2xl shadow-sm p-4 sm:p-5 surface-card space-y-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-indigo-200 bg-indigo-50/70 surface-header-bar p-3 rounded-xl border">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-gear text-indigo-700 text-base"></i>
+                            <h2 class="text-sm sm:text-base font-extrabold uppercase tracking-wide text-indigo-950">
+                                Cài Đặt Hệ Thống &amp; Giao Diện
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- UI Appearance Settings -->
+                        <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 surface-sub space-y-4">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+                                <i class="fa-solid fa-palette text-indigo-600"></i> Tùy chỉnh Giao diện Hiển thị
+                            </h3>
+
+                            <!-- Theme Mode -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Chế độ nền (Theme)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="app.updateUISetting('theme', 'light')" id="btn-theme-light" class="px-3 py-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition">
+                                        <i class="fa-solid fa-sun text-amber-500"></i> Giao diện Sáng
+                                    </button>
+                                    <button type="button" onclick="app.updateUISetting('theme', 'dark')" id="btn-theme-dark" class="px-3 py-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition">
+                                        <i class="fa-solid fa-moon text-indigo-400"></i> Giao diện Tối
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Font Size -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Cỡ chữ hiển thị</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" onclick="app.updateUISetting('fontScale', 'sm')" id="btn-font-sm" class="px-3 py-2 rounded-xl border text-xs font-bold transition">Nhỏ</button>
+                                    <button type="button" onclick="app.updateUISetting('fontScale', 'md')" id="btn-font-md" class="px-3 py-2 rounded-xl border text-xs font-bold transition">Chuẩn</button>
+                                    <button type="button" onclick="app.updateUISetting('fontScale', 'lg')" id="btn-font-lg" class="px-3 py-2 rounded-xl border text-xs font-bold transition">To</button>
+                                </div>
+                            </div>
+
+                            <!-- Department Subtitle -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Tên Đơn vị / Khoa phòng hiển thị trên thanh tiêu đề</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="settingSubtitleInput" class="flex-grow px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-medium">
+                                    <button type="button" onclick="app.saveSubtitleSetting()" class="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold transition">
+                                        Áp dụng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Future Database Integration Area (Intentionally Blank Staging Zone) -->
+                        <div id="databaseIntegrationZone" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50/40 surface-sub flex flex-col justify-between min-h-[240px]">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 flex items-center gap-2">
+                                <i class="fa-solid fa-database text-slate-400"></i> Kết Nối Cơ Sở Dữ Liệu (Database)
+                            </h3>
+                            <div class="flex-grow"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- FOOTER TỐI GIẢN -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-2.5 mt-auto">
+        <div class="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-[11px] gap-1.5 sm:gap-0">
+            <div class="flex items-center gap-1.5 font-semibold text-slate-300">
+                <i class="fa-solid fa-code text-blue-400"></i> Developed by Dr. Nhat Truong
+            </div>
+            <div class="text-slate-400 font-medium text-center">
+                Department of Ophthalmology – Thu Duc Regional General Hospital
+            </div>
+            <div>
+                <a href="mailto:tranhuunhattruong@gmail.com" class="text-blue-400 hover:text-blue-300 transition flex items-center gap-1 font-mono">
+                    <i class="fa-regular fa-envelope"></i> tranhuunhattruong@gmail.com
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-5 space-y-4 surface-card">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-lg">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 id="confirmModalTitle" class="text-sm font-extrabold text-slate-900">Xác nhận thao tác</h3>
+                    <p id="confirmModalMessage" class="text-xs text-slate-600 mt-1 leading-relaxed"></p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="app.closeConfirmModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                    Hủy
+                </button>
+                <button type="button" id="confirmModalOkBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-sm">
+                    Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-[95] flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <!-- APPLICATION LOGIC -->
+    <script>
+        class FundusDashboardApp {
+            constructor() {
+                this.STORAGE_DATA_KEY = 'orbis_fundus_patients_v1';
+                this.STORAGE_CUSTOM_KEY = 'orbis_fundus_custom_fields_v1';
+                this.STORAGE_LAYOUT_KEY = 'orbis_fundus_field_layout_v1';
+                this.STORAGE_SETTINGS_KEY = 'orbis_fundus_ui_settings_v1';
+                this.STORAGE_REPORT_META_KEY = 'orbis_fundus_report_meta_v1';
+
+                this.SERVICE_LIST = [
+                    "Khám mắt & đo thị lực",
+                    "Chụp ảnh võng mạc không huỳnh quang",
+                    "Chụp ảnh võng mạc có huỳnh quang",
+                    "Chụp OCT",
+                    "Tiêm nội nhãn Anti-VEGF",
+                    "Laser quang đông Võng Mạc",
+                    "Điều trị ngoại khoa bệnh võng mạc"
+                ];
+
+                this.OPTIONS = {
+                    gioiTinh: ["Nam", "Nữ"],
+                    tipDTD: [
+                        "Chưa xác định",
+                        "Không mắc ĐTĐ",
+                        "ĐTĐ Típ 1",
+                        "ĐTĐ Típ 2",
+                        "ĐTĐ Ko rõ Típ",
+                        "ĐTĐ Thai kỳ"
+                    ],
+                    chanDoanTHA: [
+                        "Chưa xác định",
+                        "Không mắc THA",
+                        "THA chưa điều trị",
+                        "THA đang điều trị"
+                    ],
+                    nhoGian: ["Có", "Không"],
+                    trangThaiAI: ["Hoàn thành", "Chưa hoàn thành", "Không tải lên", "Khác"],
+                    chatLuongAnh: ["<=50%", ">50%"],
+                    phanDoAI: [
+                        "0. Bình thường",
+                        "1. Chuyển tuyến (VMĐTĐ)",
+                        "2. Chuyển tuyến (Bất thường HĐ)",
+                        "3. Chuyển tuyến (Glocom)",
+                        "4. Chuyển tuyến (VMĐTĐ+Bất thường HĐ)",
+                        "5. Chuyển tuyến (VMĐTĐ+Glocom)",
+                        "6. Chuyển tuyến (Bất thường HĐ+Glocom)",
+                        "7. Chuyển tuyến (VMĐTĐ+Bất thường HĐ+Glocom)"
+                    ],
+                    ketQuaAIChung: ["Bình thường", "Chuyển tuyến", "Khác"],
+                    xuTriVongMac: [
+                        "1. Theo dõi và hẹn khám lại",
+                        "2. Tiêm nội nhãn",
+                        "3. Điều trị laser",
+                        "4. Điều trị ngoại khoa",
+                        "5. Chuyển viện"
+                    ]
+                };
+
+                // Load UI settings
+                const savedSettings = JSON.parse(localStorage.getItem(this.STORAGE_SETTINGS_KEY) || '{}');
+                if (!savedSettings.subtitle || savedSettings.subtitle === 'Khoa Nội tiết - BV ĐKKV Thủ Đức') {
+                    savedSettings.subtitle = 'Khoa Mắt - BV ĐKKV Thủ Đức';
+                }
+                this.uiSettings = Object.assign({
+                    theme: 'light',
+                    fontScale: 'md',
+                    subtitle: 'Khoa Mắt - BV ĐKKV Thủ Đức',
+                    sidebarCollapsed: false
+                }, savedSettings);
+
+                // Load report header metadata (C3-C7, J3-J7, O3-O9)
+                const savedMeta = JSON.parse(localStorage.getItem(this.STORAGE_REPORT_META_KEY) || '{}');
+                this.reportMeta = Object.assign({
+                    c3: this.uiSettings.subtitle,
+                    c4: String(new Date().getFullYear()),
+                    c5: String(new Date().getMonth() + 1).padStart(2, '0'),
+                    c6: '',
+                    c7: '',
+                    j4: '',
+                    j5: this.getTodayDDMMYYYY(),
+                    j6: '',
+                    j7: '',
+                    services: this.SERVICE_LIST.map(() => ({ o: '', p: '', q: '', r: '' }))
+                }, savedMeta);
+
+                // Load custom fields & patient data
+                this.customFields = JSON.parse(localStorage.getItem(this.STORAGE_CUSTOM_KEY)) || [];
+                const storedData = localStorage.getItem(this.STORAGE_DATA_KEY);
+                if (storedData) {
+                    this.data = JSON.parse(storedData).map(rec => ({
+                        ...rec,
+                        ngayChup: this.normalizeDateToDDMMYYYY(rec.ngayChup),
+                        ngaySinh: this.normalizeDateToDDMMYYYY(rec.ngaySinh)
+                    }));
+                } else {
+                    this.data = this.getSamplePatients();
+                    this.saveToStorage();
+                }
+
+                this.rebuildFieldLayout();
+
+                this.activeView = 'entry'; // 'entry' | 'list' | 'stats' | 'variables' | 'settings'
+                this.activeGroup = 'g1';
+                this.periodMode = 'all'; // 'all' | 'month_year'
+                this.selectedMonth = '';
+                this.selectedYear = String(new Date().getFullYear());
+                this.filteredData = [...this.data];
+                this.selectedIds = new Set();
+                this.quickFilter = 'all';
+                this.confirmCallback = null;
+                this.groupCollapsed = { g1: false, g2: false, g3: false, g4: false };
+
+                this.init();
+            }
+
+            // ===================== DATE UTILITIES (dd/mm/yyyy) =====================
+            getTodayDDMMYYYY() {
+                const now = new Date();
+                const dd = String(now.getDate()).padStart(2, '0');
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const yyyy = now.getFullYear();
+                return `${dd}/${mm}/${yyyy}`;
+            }
+
+            normalizeDateToDDMMYYYY(val) {
+                if (!val) return '';
+                const s = String(val).trim();
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+                const isoMatch = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                if (isoMatch) {
+                    return `${isoMatch[3].padStart(2, '0')}/${isoMatch[2].padStart(2, '0')}/${isoMatch[1]}`;
+                }
+                const dmyMatch = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                if (dmyMatch) {
+                    return `${dmyMatch[1].padStart(2, '0')}/${dmyMatch[2].padStart(2, '0')}/${dmyMatch[3]}`;
+                }
+                return s;
+            }
+
+            ddmmyyyyToISO(val) {
+                const norm = this.normalizeDateToDDMMYYYY(val);
+                const m = norm.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                if (!m) return '';
+                return `${m[3]}-${m[2]}-${m[1]}`;
+            }
+
+            getMonthYearFromDDMMYYYY(val) {
+                const norm = this.normalizeDateToDDMMYYYY(val);
+                const parts = norm.split('/');
+                if (parts.length !== 3) return { month: '', year: '' };
+                return { month: parts[1], year: parts[2] };
+            }
+
+            parseDateTimestamp(val) {
+                const iso = this.ddmmyyyyToISO(val);
+                if (!iso) return 0;
+                const ts = Date.parse(iso);
+                return Number.isNaN(ts) ? 0 : ts;
+            }
+
+            isValidDDMMYYYY(val) {
+                if (!val) return true;
+                const m = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                if (!m) return false;
+                const dd = parseInt(m[1], 10);
+                const mm = parseInt(m[2], 10);
+                const yyyy = parseInt(m[3], 10);
+                if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || yyyy < 1900 || yyyy > 2100) return false;
+                const d = new Date(yyyy, mm - 1, dd);
+                return d.getFullYear() === yyyy && d.getMonth() === mm - 1 && d.getDate() === dd;
+            }
+
+            handleDateMaskInput(inputEl) {
+                let digits = inputEl.value.replace(/\D/g, '').slice(0, 8);
+                if (digits.length >= 5) {
+                    inputEl.value = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+                } else if (digits.length >= 3) {
+                    inputEl.value = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+                } else {
+                    inputEl.value = digits;
+                }
+            }
+
+            syncPickerToText(pickerEl, targetInputId) {
+                if (!pickerEl.value) return;
+                const target = document.getElementById(targetInputId);
+                if (target) {
+                    target.value = this.normalizeDateToDDMMYYYY(pickerEl.value);
+                }
+            }
+
+            openNativeDatePicker(pickerId, textInputId) {
+                const picker = document.getElementById(pickerId);
+                const textEl = document.getElementById(textInputId);
+                if (!picker) return;
+                if (textEl && textEl.value) {
+                    const iso = this.ddmmyyyyToISO(textEl.value);
+                    if (iso) picker.value = iso;
+                }
+                if (typeof picker.showPicker === 'function') {
+                    picker.showPicker();
+                } else {
+                    picker.click();
+                }
+            }
+
+            // ===================== SAMPLE DATA =====================
+            getSamplePatients() {
+                const today = this.getTodayDDMMYYYY();
+                return [
+                    {
+                        id: "rec_sample_1",
+                        soTT: 1,
+                        ngayChup: "18/11/2026",
+                        maCybersight: "CS-TD-2026-001",
+                        maBHYT: "HT2792014589632",
+                        hoTen: "NGUYỄN THỊ MINH HƯƠNG",
+                        xaPhuong: "Phường Linh Xuân",
+                        tinhTP: "TP. Hồ Chí Minh",
+                        lienHe: "0908456123",
+                        gioiTinh: "Nữ",
+                        ngaySinh: "14/05/1962",
+                        tipDTD: "ĐTĐ Típ 2",
+                        namDTD: 2015,
+                        chanDoanTHA: "THA đang điều trị",
+                        namTHA: 2018,
+                        thiLucMP: "6/10",
+                        thiLucMT: "9/10",
+                        nhoGian: "Có",
+                        trangThaiAI: "Hoàn thành",
+                        chatLuongMP: ">50%",
+                        chatLuongMT: ">50%",
+                        phanDoMP: "1. Chuyển tuyến (VMĐTĐ)",
+                        phanDoMT: "0. Bình thường",
+                        ketQuaAIChung: "Chuyển tuyến",
+                        ketLuanMP: "Bệnh võng mạc ĐTĐ không tăng sinh mức độ trung bình",
+                        ketLuanMT: "Đáy mắt bình thường, chưa ghi nhận tổn thương VMĐTĐ",
+                        xuTriVongMac: "3. Điều trị laser",
+                        xuTriBenhKhac: "Theo dõi đục thủy tinh thể giai đoạn sớm",
+                        noiChuyenVien: "Bệnh viện Mắt TP.HCM",
+                        ghiChu: "Hẹn tái khám chuyên khoa Mắt sau 2 tuần",
+                        customValues: {}
+                    },
+                    {
+                        id: "rec_sample_2",
+                        soTT: 2,
+                        ngayChup: today,
+                        maCybersight: "CS-TD-2026-002",
+                        maBHYT: "DN4791029384756",
+                        hoTen: "TRẦN QUỐC BẢO",
+                        xaPhuong: "Phường Hiệp Bình Chánh",
+                        tinhTP: "TP. Hồ Chí Minh",
+                        lienHe: "0913789456",
+                        gioiTinh: "Nam",
+                        ngaySinh: "08/11/1971",
+                        tipDTD: "ĐTĐ Típ 2",
+                        namDTD: 2021,
+                        chanDoanTHA: "Không mắc THA",
+                        namTHA: "",
+                        thiLucMP: "10/10",
+                        thiLucMT: "10/10",
+                        nhoGian: "Không",
+                        trangThaiAI: "Hoàn thành",
+                        chatLuongMP: ">50%",
+                        chatLuongMT: ">50%",
+                        phanDoMP: "0. Bình thường",
+                        phanDoMT: "0. Bình thường",
+                        ketQuaAIChung: "Bình thường",
+                        ketLuanMP: "",
+                        ketLuanMT: "",
+                        xuTriVongMac: "1. Theo dõi và hẹn khám lại",
+                        xuTriBenhKhac: "",
+                        noiChuyenVien: "",
+                        ghiChu: "Chờ BSCK Mắt đọc kết luận chính thức",
+                        customValues: {}
+                    }
+                ];
+            }
+
+            // ===================== FIELD LAYOUT (COLUMNS 1..29 + CUSTOM) =====================
+            getDefaultLayout() {
+                return [
+                    // Nhóm 1: Hành chính & Định danh (Cột 1–10)
+                    { id: "soTT", col: 1, group: "g1", label: "STT", type: "number", min: 1, placeholder: "Tự động", enabled: true },
+                    { id: "ngayChup", col: 2, group: "g1", label: "Ngày chụp", type: "date_vn", enabled: true },
+                    { id: "maCybersight", col: 3, group: "g1", label: "Mã BN Cybersight AI", type: "text", placeholder: "VD: CS-TD-2026-001", enabled: true },
+                    { id: "maBHYT", col: 4, group: "g1", label: "Mã BHYT", type: "text", placeholder: "VD: DN479...", orbisHidden: true, enabled: true },
+                    { id: "hoTen", col: 5, group: "g1", label: "Họ và tên Người bệnh", type: "text", uppercase: true, colSpan: 2, placeholder: "NGUYỄN VĂN A", orbisHidden: true, enabled: true },
+                    { id: "xaPhuong", col: 6, group: "g1", label: "Xã/phường", type: "text", placeholder: "VD: P. Linh Xuân", orbisHidden: true, enabled: true },
+                    { id: "tinhTP", col: 7, group: "g1", label: "Tỉnh/TP", type: "text", placeholder: "TP. Hồ Chí Minh", orbisHidden: true, enabled: true },
+                    { id: "lienHe", col: 8, group: "g1", label: "Điện thoại & Email", type: "text", placeholder: "090xxxxxxx", orbisHidden: true, enabled: true },
+                    { id: "gioiTinh", col: 9, group: "g1", label: "Giới tính", type: "select", optionsKey: "gioiTinh", enabled: true },
+                    { id: "ngaySinh", col: 10, group: "g1", label: "Ngày tháng năm sinh", type: "date_vn", enabled: true },
+
+                    // Nhóm 2: Bệnh sử & Thị lực (Cột 11–17)
+                    { id: "tipDTD", col: 11, group: "g2", label: "Típ ĐTĐ", type: "select", optionsKey: "tipDTD", enabled: true },
+                    { id: "namDTD", col: 12, group: "g2", label: "Năm chẩn đoán ĐTĐ", type: "number", min: 1950, max: 2030, placeholder: "VD: 2018", enabled: true },
+                    { id: "chanDoanTHA", col: 13, group: "g2", label: "Chẩn đoán THA/Tim mạch", type: "select", optionsKey: "chanDoTHA", enabled: true },
+                    { id: "namTHA", col: 14, group: "g2", label: "Năm chẩn đoán THA/TM", type: "number", min: 1950, max: 2030, placeholder: "VD: 2020", enabled: true },
+                    { id: "thiLucMP", col: 15, group: "g2", label: "Thị lực hiện tại - MP", type: "text", placeholder: "VD: 10/10", enabled: true },
+                    { id: "thiLucMT", col: 16, group: "g2", label: "Thị lực hiện tại - MT", type: "text", placeholder: "VD: 8/10", enabled: true },
+                    { id: "nhoGian", col: 17, group: "g2", label: "Nhỏ giãn trước chụp", type: "select", optionsKey: "nhoGian", enabled: true },
+
+                    // Nhóm 3: Kết quả Cybersight AI (Cột 18–23)
+                    { id: "trangThaiAI", col: 18, group: "g3", label: "Trạng thái tải lên AI", type: "select", optionsKey: "trangThaiAI", enabled: true },
+                    { id: "chatLuongMP", col: 19, group: "g3", label: "Chất lượng ảnh MP", type: "select", optionsKey: "chatLuongAnh", enabled: true },
+                    { id: "chatLuongMT", col: 20, group: "g3", label: "Chất lượng ảnh MT", type: "select", optionsKey: "chatLuongAnh", enabled: true },
+                    { id: "phanDoMP", col: 21, group: "g3", label: "Phân độ Cybersight AI - MP", type: "select", optionsKey: "phanDoAI", colSpan: 2, onChange: "app.autoComputeAIResult()", enabled: true },
+                    { id: "phanDoMT", col: 22, group: "g3", label: "Phân độ Cybersight AI - MT", type: "select", optionsKey: "phanDoAI", colSpan: 2, onChange: "app.autoComputeAIResult()", enabled: true },
+                    { id: "ketQuaAIChung", col: 23, group: "g3", label: "Kết quả phân độ chung AI", type: "select", optionsKey: "ketQuaAIChung", colSpan: 2, highlight: true, enabled: true },
+
+                    // Nhóm 4: Kết luận BSCK Mắt, Xử trí & Biến tùy chỉnh (Cột 24–29 + Custom)
+                    { id: "ketLuanMP", col: 24, group: "g4", label: "Kết luận BSCK Mắt - MP", type: "text", colSpan: 2, placeholder: "Nhập kết luận Mắt Phải...", enabled: true },
+                    { id: "ketLuanMT", col: 25, group: "g4", label: "Kết luận BSCK Mắt - MT", type: "text", colSpan: 2, placeholder: "Nhập kết luận Mắt Trái...", enabled: true },
+                    { id: "xuTriVongMac", col: 26, group: "g4", label: "Xử trí - Bệnh lý võng mạc", type: "select", optionsKey: "xuTriVongMac", colSpan: 2, enabled: true },
+                    { id: "xuTriBenhKhac", col: 27, group: "g4", label: "Xử trí - Bệnh mắt khác", type: "text", colSpan: 2, placeholder: "Nếu có...", enabled: true },
+                    { id: "noiChuyenVien", col: 28, group: "g4", label: "Chuyển viện (Nơi dự kiến)", type: "text", colSpan: 2, placeholder: "VD: BV Mắt TP.HCM", enabled: true },
+                    { id: "ghiChu", col: 29, group: "g4", label: "Ghi chú", type: "text", colSpan: 2, placeholder: "Ghi chú thêm...", enabled: true },
+
+                    // Custom fields appended into group 4
+                    ...this.customFields.map(f => ({
+                        id: "custom:" + f,
+                        col: null,
+                        group: "g4",
+                        label: f,
+                        type: "custom",
+                        enabled: true
+                    }))
+                ];
+            }
+
+            rebuildFieldLayout() {
+                const defaultLayout = this.getDefaultLayout();
+                const savedLayout = JSON.parse(localStorage.getItem(this.STORAGE_LAYOUT_KEY));
+
+                if (Array.isArray(savedLayout) && savedLayout.length) {
+                    const defaultMap = new Map(defaultLayout.map(d => [d.id, d]));
+                    this.fieldLayout = savedLayout
+                        .filter(f => defaultMap.has(f.id))
+                        .map(f => ({ ...defaultMap.get(f.id), enabled: f.enabled }));
+
+                    defaultLayout.forEach(def => {
+                        if (!this.fieldLayout.some(f => f.id === def.id)) {
+                            if (def.id === 'soTT') {
+                                this.fieldLayout.unshift(def);
+                            } else {
+                                this.fieldLayout.push(def);
+                            }
+                        }
+                    });
+                } else {
+                    this.fieldLayout = defaultLayout;
+                }
+            }
+
+            init() {
+                this.applyUISettings();
+                this.syncStickyOffsets();
+                this.renderInputLayout();
+                this.resetForm(false);
+                this.syncPeriodUI();
+                this.syncReportMetaFromPeriod(false);
+                this.updateSummaryCounters();
+                this.handleFilterChange();
+                this.bindGlobalShortcuts();
+            }
+
+            syncStickyOffsets() {
+                const header = document.getElementById('mainTopHeader');
+                const stickyBar = document.getElementById('entryStickyGroupBar');
+                const leftNav = document.getElementById('leftMenuNav');
+                if (!header) return;
+
+                const updateTop = () => {
+                    const h = header.offsetHeight;
+                    if (stickyBar) stickyBar.style.top = `${h}px`;
+                    if (leftNav) leftNav.style.top = `${h + 8}px`;
+                };
+
+                updateTop();
+                if (typeof ResizeObserver !== 'undefined') {
+                    new ResizeObserver(updateTop).observe(header);
+                }
+                window.addEventListener('resize', updateTop);
+            }
+
+            // ===================== GLOBAL KEYBOARD SHORTCUTS (F1 - F6) =====================
+            bindGlobalShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    const key = e.key;
+                    if (!['F1', 'F2', 'F3', 'F4', 'F5', 'F6'].includes(key)) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (key === 'F1') {
+                        this.activateGroup('g1');
+                    } else if (key === 'F2') {
+                        this.activateGroup('g2');
+                    } else if (key === 'F3') {
+                        this.activateGroup('g3');
+                    } else if (key === 'F4') {
+                        this.activateGroup('g4');
+                    } else if (key === 'F5') {
+                        if (this.activeView !== 'entry') {
+                            this.switchView('entry');
+                        }
+                        this.savePatient();
+                    } else if (key === 'F6') {
+                        this.resetForm(true);
+                    }
+                });
+            }
+
+            // ===================== SIDEBAR & VIEW NAVIGATION =====================
+            toggleSidebar() {
+                const bar = document.getElementById('leftMenuBar');
+                this.uiSettings.sidebarCollapsed = !this.uiSettings.sidebarCollapsed;
+                if (this.uiSettings.sidebarCollapsed) {
+                    bar.classList.remove('w-64');
+                    bar.classList.add('w-[68px]', 'collapsed');
+                } else {
+                    bar.classList.add('w-64');
+                    bar.classList.remove('w-[68px]', 'collapsed');
+                }
+                localStorage.setItem(this.STORAGE_SETTINGS_KEY, JSON.stringify(this.uiSettings));
+            }
+
+            switchView(viewName) {
+                this.activeView = viewName;
+                const views = ['entry', 'list', 'stats', 'variables', 'settings'];
+                views.forEach(v => {
+                    const sec = document.getElementById(`view-${v}`);
+                    const nav = document.getElementById(`nav-${v}`);
+                    if (sec) {
+                        if (v === viewName) sec.classList.remove('hidden');
+                        else sec.classList.add('hidden');
+                    }
+                    if (nav) {
+                        if (v === viewName) {
+                            nav.className = "menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition bg-blue-700 text-white shadow-sm";
+                        } else {
+                            nav.className = "menu-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition text-slate-700 hover:bg-slate-100";
+                        }
+                    }
+                });
+
+                if (viewName === 'entry') {
+                    this.renderInputLayout();
+                    this.syncStickyOffsets();
+                } else if (viewName === 'list') {
+                    this.syncPeriodUI();
+                    this.handleFilterChange();
+                } else if (viewName === 'stats') {
+                    this.syncPeriodUI();
+                    this.syncReportMetaFromPeriod(false);
+                    this.renderStatsDashboard();
+                } else if (viewName === 'variables') {
+                    this.renderFieldManager();
+                } else if (viewName === 'settings') {
+                    this.syncSettingsUI();
+                }
+            }
+
+            // ===================== GROUP TABS & AUTO-FOCUS FIRST FIELD =====================
+            activateGroup(groupKey) {
+                if (this.activeView !== 'entry') {
+                    this.switchView('entry');
+                }
+                this.activeGroup = groupKey;
+
+                if (this.groupCollapsed[groupKey]) {
+                    this.groupCollapsed[groupKey] = false;
+                    const panel = document.getElementById(`panel-${groupKey}`);
+                    const toggleBtn = document.getElementById(`toggle-${groupKey}`);
+                    if (panel) panel.classList.remove('hidden');
+                    if (toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up text-xs"></i>';
+                }
+
+                ['g1', 'g2', 'g3', 'g4'].forEach(g => {
+                    const tab = document.getElementById(`groupTab-${g}`);
+                    if (!tab) return;
+                    const kbd = tab.querySelector('span:first-child');
+                    if (g === groupKey) {
+                        tab.className = "group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-blue-700 text-white border-blue-800 shadow-sm flex items-center gap-1.5";
+                        if (kbd) kbd.className = "px-1.5 py-0.2 rounded bg-black/25 text-amber-200 font-mono text-[10px]";
+                    } else {
+                        tab.className = "group-tab px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-700 border-slate-300 hover:bg-blue-100 hover:text-blue-900 flex items-center gap-1.5";
+                        if (kbd) kbd.className = "px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 font-mono text-[10px]";
+                    }
+                });
+
+                const groupCard = document.getElementById(`groupCard-${groupKey}`);
+                if (groupCard) {
+                    const headerH = document.getElementById('mainTopHeader')?.offsetHeight || 56;
+                    const barH = document.getElementById('entryStickyGroupBar')?.offsetHeight || 48;
+                    const targetTop = groupCard.getBoundingClientRect().top + window.scrollY - headerH - barH - 12;
+                    window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+
+                    const firstField = groupCard.querySelector('.group-first-target');
+                    if (firstField) {
+                        setTimeout(() => {
+                            firstField.focus({ preventScroll: true });
+                            if (typeof firstField.select === 'function' && (firstField.type === 'text' || firstField.type === 'number')) {
+                                firstField.select();
+                            }
+                        }, 60);
+                    }
+                }
+            }
+
+            // ===================== TOAST & CONFIRM MODAL =====================
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                const styles = {
+                    success: 'bg-emerald-700 text-white border-emerald-800',
+                    info: 'bg-blue-800 text-white border-blue-900',
+                    warning: 'bg-amber-500 text-slate-900 border-amber-600',
+                    error: 'bg-rose-600 text-white border-rose-700'
+                };
+                const icons = {
+                    success: 'fa-circle-check',
+                    info: 'fa-circle-info',
+                    warning: 'fa-triangle-exclamation',
+                    error: 'fa-circle-xmark'
+                };
+                toast.className = `toast-enter pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-xs font-bold flex items-center gap-2.5 ${styles[type] || styles.info}`;
+                toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm"></i><span>${message}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.transition = 'opacity 0.25s ease';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 260);
+                }, 3000);
+            }
+
+            openConfirmModal(title, message, onConfirm) {
+                document.getElementById('confirmModalTitle').innerText = title;
+                document.getElementById('confirmModalMessage').innerText = message;
+                this.confirmCallback = onConfirm;
+                const okBtn = document.getElementById('confirmModalOkBtn');
+                okBtn.onclick = () => {
+                    const cb = this.confirmCallback;
+                    this.closeConfirmModal();
+                    if (typeof cb === 'function') cb();
+                };
+                const modal = document.getElementById('confirmModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            closeConfirmModal() {
+                const modal = document.getElementById('confirmModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                this.confirmCallback = null;
+            }
+
+            // ===================== QUICK PASTE PARSER (INSIDE GROUP 1) =====================
+            parseQuickPaste() {
+                const text = document.getElementById('quickPasteInput').value.trim();
+                if (!text) {
+                    this.showToast("Vui lòng dán chuỗi thông tin vào ô!", "warning");
+                    return;
+                }
+
+                let filledCount = 0;
+
+                const nameMatch = text.match(/^([^(\-–:]+)/);
+                if (nameMatch && nameMatch[1].trim().length > 1) {
+                    const el = document.getElementById('hoTen');
+                    if (el) { el.value = nameMatch[1].trim().toUpperCase(); filledCount++; }
+                }
+
+                const dobMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                if (dobMatch) {
+                    const dd = dobMatch[1].padStart(2, '0');
+                    const mm = dobMatch[2].padStart(2, '0');
+                    const yyyy = dobMatch[3];
+                    const el = document.getElementById('ngaySinh');
+                    if (el) { el.value = `${dd}/${mm}/${yyyy}`; filledCount++; }
+                }
+
+                const genderMatch = text.match(/\b(Nam|Nữ)\b/i);
+                if (genderMatch) {
+                    const el = document.getElementById('gioiTinh');
+                    if (el) {
+                        el.value = genderMatch[1].toLowerCase() === 'nam' ? 'Nam' : 'Nữ';
+                        filledCount++;
+                    }
+                }
+
+                const bhytMatch = text.match(/(?:Mã\s*BHYT|BHYT)\s*[:\-]?\s*([A-Za-z0-9]{10,20})/i);
+                if (bhytMatch) {
+                    const el = document.getElementById('maBHYT');
+                    if (el) { el.value = bhytMatch[1].trim().toUpperCase(); filledCount++; }
+                }
+
+                const phoneMatch = text.match(/(?:SĐT|ĐT|Điện\s*thoại)\s*[:\-]?\s*(0\d{8,10})/i) || text.match(/\b(0\d{9})\b/);
+                if (phoneMatch) {
+                    const el = document.getElementById('lienHe');
+                    if (el) { el.value = phoneMatch[1].trim(); filledCount++; }
+                }
+
+                if (filledCount > 0) {
+                    this.showToast(`Đã tự động điền ${filledCount} trường thông tin!`, "success");
+                } else {
+                    this.showToast("Không nhận diện được định dạng chuẩn từ chuỗi dán.", "warning");
+                }
+            }
+
+            // ===================== AUTO-LOGIC FOR CYBERSIGHT AI =====================
+            autoComputeAIResult() {
+                const mpEl = document.getElementById('phanDoMP');
+                const mtEl = document.getElementById('phanDoMT');
+                const chungEl = document.getElementById('ketQuaAIChung');
+                if (!mpEl || !mtEl || !chungEl) return;
+
+                const mp = mpEl.value;
+                const mt = mtEl.value;
+
+                const isRefer = (val) => val && (/^[1-7]\./.test(val) || val.includes('Chuyển tuyến'));
+                if (isRefer(mp) || isRefer(mt)) {
+                    chungEl.value = "Chuyển tuyến";
+                } else if (mp === "0. Bình thường" && mt === "0. Bình thường") {
+                    chungEl.value = "Bình thường";
+                }
+            }
+
+            // ===================== RENDER 4-GROUP ENTRY FORM =====================
+            renderInputLayout() {
+                const container = document.getElementById('inputLayoutContainer');
+                if (!container) return;
+
+                const groups = [
+                    {
+                        key: 'g1',
+                        title: 'Nhóm 1: Hành chính & Định danh (Cột 1–10)',
+                        badge: '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300"><i class="fa-solid fa-eye-slash mr-1"></i>Cột (4)–(8) ẩn khi xuất Orbis</span>',
+                        wrapperClass: 'border-slate-200 bg-slate-50/50',
+                        headerClass: 'bg-slate-100 border-slate-200 text-blue-950',
+                        gridClass: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                    },
+                    {
+                        key: 'g2',
+                        title: 'Nhóm 2: Bệnh sử & Thị lực (Cột 11–17)',
+                        badge: '',
+                        wrapperClass: 'border-slate-200 bg-slate-50/50',
+                        headerClass: 'bg-slate-100 border-slate-200 text-blue-950',
+                        gridClass: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                    },
+                    {
+                        key: 'g3',
+                        title: 'Nhóm 3: Kết quả Cybersight AI (Cột 18–23)',
+                        badge: '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-300"><i class="fa-solid fa-robot mr-1"></i>Tự động tính Phân độ chung (23)</span>',
+                        wrapperClass: 'border-indigo-200 bg-indigo-50/40',
+                        headerClass: 'bg-indigo-100/70 border-indigo-200 text-indigo-950',
+                        gridClass: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-6'
+                    },
+                    {
+                        key: 'g4',
+                        title: 'Nhóm 4: Kết luận BSCK Mắt, Xử trí & Biến tùy chỉnh (Cột 24–29)',
+                        badge: '',
+                        wrapperClass: 'border-slate-200 bg-slate-50/50',
+                        headerClass: 'bg-slate-100 border-slate-200 text-blue-950',
+                        gridClass: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                    }
+                ];
+
+                const renderField = (field, idxInGroup) => {
+                    const isFirst = idxInGroup === 0;
+                    const firstClass = isFirst ? 'group-first-target' : '';
+                    const colSpanClass = field.colSpan === 2 ? 'sm:col-span-2' : '';
+                    const colPrefix = field.col ? `<span class="text-blue-700 font-mono mr-1">(${field.col})</span>` : '<span class="text-teal-700 font-mono mr-1">[+]</span>';
+                    const orbisTag = field.orbisHidden ? '<span class="ml-1 text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-200" title="Sẽ ẩn khi xuất Orbis">Ẩn Orbis</span>' : '';
+
+                    if (field.type === 'custom') {
+                        return `
+                            <div class="${colSpanClass}">
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">${colPrefix}${field.label}</label>
+                                <input type="text" data-custom-field="${field.label}" placeholder="Nhập ${field.label}..."
+                                    class="${firstClass} w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 custom-field-input">
+                            </div>`;
+                    }
+
+                    const baseInputClass = field.highlight
+                        ? `${firstClass} w-full px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-300 text-xs sm:text-sm font-bold text-indigo-950 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600`
+                        : `${firstClass} w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600`;
+
+                    if (field.type === 'select') {
+                        const opts = this.OPTIONS[field.optionsKey] || [];
+                        const onChangeAttr = field.onChange ? `onchange="${field.onChange}"` : '';
+                        return `
+                            <div class="${colSpanClass}">
+                                <label class="block text-[11px] font-bold ${field.highlight ? 'text-indigo-900' : 'text-slate-700'} uppercase mb-1">${colPrefix}${field.label}${orbisTag}</label>
+                                <select id="${field.id}" ${onChangeAttr} class="${baseInputClass}">
+                                    <option value="">-- Chọn --</option>
+                                    ${opts.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                </select>
+                            </div>`;
+                    }
+
+                    if (field.type === 'number') {
+                        return `
+                            <div class="${colSpanClass}">
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">${colPrefix}${field.label}</label>
+                                <input type="number" id="${field.id}" min="${field.min || ''}" max="${field.max || ''}" placeholder="${field.placeholder || ''}" class="${baseInputClass}">
+                            </div>`;
+                    }
+
+                    if (field.type === 'date_vn') {
+                        const pickerId = `picker_${field.id}`;
+                        return `
+                            <div class="${colSpanClass}">
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">${colPrefix}${field.label} <span class="text-[9px] font-mono lowercase text-slate-400">(dd/mm/yyyy)</span></label>
+                                <div class="relative flex items-center">
+                                    <input type="text" id="${field.id}" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy"
+                                        oninput="app.handleDateMaskInput(this)"
+                                        class="${baseInputClass} pr-9 font-mono">
+                                    <input type="date" id="${pickerId}" onchange="app.syncPickerToText(this, '${field.id}')" class="sr-only" tabindex="-1">
+                                    <button type="button" onclick="app.openNativeDatePicker('${pickerId}', '${field.id}')" tabindex="-1" title="Chọn từ lịch"
+                                        class="absolute right-2 w-6 h-6 rounded-lg text-slate-400 hover:text-blue-700 hover:bg-blue-50 flex items-center justify-center transition">
+                                        <i class="fa-regular fa-calendar text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>`;
+                    }
+
+                    const upperStyle = field.uppercase ? 'style="text-transform:uppercase"' : '';
+                    return `
+                        <div class="${colSpanClass}">
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">${colPrefix}${field.label}${orbisTag}</label>
+                            <input type="text" id="${field.id}" placeholder="${field.placeholder || ''}" ${upperStyle} class="${baseInputClass}">
+                        </div>`;
+                };
+
+                container.innerHTML = groups.map(grp => {
+                    const fieldsInGroup = this.fieldLayout.filter(f => f.group === grp.key && f.enabled);
+                    if (fieldsInGroup.length === 0) return '';
+                    const isCollapsed = this.groupCollapsed[grp.key];
+
+                    const quickPasteInsideG1 = grp.key === 'g1' ? `
+                        <div class="mb-3 p-2.5 bg-blue-50/90 surface-sub border border-blue-200 rounded-xl">
+                            <label class="block text-[11px] font-bold text-blue-900 uppercase mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt text-amber-500"></i>
+                                Nhập / Dán chuỗi thông tin nhanh (Quick Paste):
+                            </label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="text" id="quickPasteInput" placeholder="VD: NGUYỄN VĂN A (22/01/1965 - Nam - 61 tuổi) Mã BHYT: DN4791234567890 - SĐT: 0901234567" class="flex-grow px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600">
+                                <div class="flex gap-1.5 shrink-0">
+                                    <button type="button" onclick="app.parseQuickPaste()" class="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap flex items-center gap-1.5">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Tự điền
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('quickPasteInput').value=''" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-semibold transition border border-slate-300">
+                                        Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>` : '';
+
+                    return `
+                        <div id="groupCard-${grp.key}" class="rounded-xl border ${grp.wrapperClass} surface-sub overflow-hidden">
+                            <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 border-b ${grp.headerClass}">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm sm:text-base font-extrabold uppercase tracking-wider">${grp.title}</span>
+                                    ${grp.badge}
+                                </div>
+                                <button type="button" onclick="app.toggleFormGroup('${grp.key}')" id="toggle-${grp.key}" class="w-7 h-7 flex items-center justify-center rounded-lg bg-white hover:bg-slate-200 text-slate-600 border border-slate-300 transition shadow-sm shrink-0">
+                                    <i class="fa-solid ${isCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-xs"></i>
+                                </button>
+                            </div>
+                            <div id="panel-${grp.key}" class="${isCollapsed ? 'hidden' : 'block'} p-3.5">
+                                ${quickPasteInsideG1}
+                                <div class="grid ${grp.gridClass} gap-3">
+                                    ${fieldsInGroup.map((f, idx) => renderField(f, idx)).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+
+            toggleFormGroup(groupKey) {
+                this.groupCollapsed[groupKey] = !this.groupCollapsed[groupKey];
+                const panel = document.getElementById(`panel-${groupKey}`);
+                const btn = document.getElementById(`toggle-${groupKey}`);
+                if (!panel || !btn) return;
+                if (this.groupCollapsed[groupKey]) {
+                    panel.classList.add('hidden');
+                    btn.innerHTML = '<i class="fa-solid fa-chevron-down text-xs"></i>';
+                } else {
+                    panel.classList.remove('hidden');
+                    btn.innerHTML = '<i class="fa-solid fa-chevron-up text-xs"></i>';
+                }
+            }
+
+            // ===================== FORM CRUD =====================
+            getNextAutoSTT() {
+                if (this.data.length === 0) return 1;
+                const maxSTT = Math.max(...this.data.map(i => parseInt(i.soTT, 10) || 0));
+                return maxSTT + 1;
+            }
+
+            resetForm(notifyAndFocus = false) {
+                if (this.activeView !== 'entry') {
+                    this.switchView('entry');
+                }
+                const form = document.getElementById('patientForm');
+                if (form) form.reset();
+                document.getElementById('editIndex').value = '';
+
+                const badge = document.getElementById('formModeBadge');
+                badge.innerText = "Chế độ: Thêm mới";
+                badge.className = "text-[11px] font-bold px-3 py-0.5 rounded-full bg-blue-900 text-white border border-blue-950 shadow-sm";
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+                document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> <span>Lưu Hồ Sơ</span> <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-900 text-blue-100">F5</span>';
+
+                const sttEl = document.getElementById('soTT');
+                if (sttEl) sttEl.value = this.getNextAutoSTT();
+
+                const ngayChupEl = document.getElementById('ngayChup');
+                if (ngayChupEl) ngayChupEl.value = this.getTodayDDMMYYYY();
+
+                if (notifyAndFocus) {
+                    this.activateGroup('g1');
+                    this.showToast("Đã sẵn sàng thêm mới hồ sơ (F6)", "info");
+                }
+            }
+
+            savePatient(e) {
+                if (e) e.preventDefault();
+                const editIndex = document.getElementById('editIndex').value;
+                const realIndex = editIndex !== "" ? parseInt(editIndex, 10) : -1;
+
+                const getVal = (id) => {
+                    const el = document.getElementById(id);
+                    return el ? el.value.trim() : '';
+                };
+
+                const ngayChupRaw = this.normalizeDateToDDMMYYYY(getVal('ngayChup'));
+                const ngaySinhRaw = this.normalizeDateToDDMMYYYY(getVal('ngaySinh'));
+
+                if (ngayChupRaw && !this.isValidDDMMYYYY(ngayChupRaw)) {
+                    this.showToast("Ngày chụp không hợp lệ! Vui lòng nhập theo dạng dd/mm/yyyy.", "error");
+                    const el = document.getElementById('ngayChup');
+                    if (el) el.focus();
+                    return;
+                }
+                if (ngaySinhRaw && !this.isValidDDMMYYYY(ngaySinhRaw)) {
+                    this.showToast("Ngày sinh không hợp lệ! Vui lòng nhập theo dạng dd/mm/yyyy.", "error");
+                    const el = document.getElementById('ngaySinh');
+                    if (el) el.focus();
+                    return;
+                }
+
+                const customValues = {};
+                document.querySelectorAll('.custom-field-input').forEach(input => {
+                    const key = input.getAttribute('data-custom-field');
+                    customValues[key] = input.value.trim();
+                });
+
+                const existing = realIndex >= 0 ? this.data[realIndex] : null;
+                const parsedSTT = parseInt(getVal('soTT'), 10);
+                const finalSTT = !Number.isNaN(parsedSTT) && parsedSTT > 0
+                    ? parsedSTT
+                    : (existing ? existing.soTT : this.getNextAutoSTT());
+
+                const hoTenRaw = getVal('hoTen').toUpperCase();
+
+                const patient = {
+                    id: existing ? existing.id : 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                    soTT: finalSTT,
+                    ngayChup: ngayChupRaw || this.getTodayDDMMYYYY(),
+                    maCybersight: getVal('maCybersight'),
+                    maBHYT: getVal('maBHYT').toUpperCase(),
+                    hoTen: hoTenRaw || "CHƯA NHẬP TÊN",
+                    xaPhuong: getVal('xaPhuong'),
+                    tinhTP: getVal('tinhTP'),
+                    lienHe: getVal('lienHe'),
+                    gioiTinh: getVal('gioiTinh'),
+                    ngaySinh: ngaySinhRaw,
+                    tipDTD: getVal('tipDTD'),
+                    namDTD: getVal('namDTD') !== '' ? parseInt(getVal('namDTD'), 10) : '',
+                    chanDoanTHA: getVal('chanDoanTHA'),
+                    namTHA: getVal('namTHA') !== '' ? parseInt(getVal('namTHA'), 10) : '',
+                    thiLucMP: getVal('thiLucMP'),
+                    thiLucMT: getVal('thiLucMT'),
+                    nhoGian: getVal('nhoGian'),
+                    trangThaiAI: getVal('trangThaiAI'),
+                    chatLuongMP: getVal('chatLuongMP'),
+                    chatLuongMT: getVal('chatLuongMT'),
+                    phanDoMP: getVal('phanDoMP'),
+                    phanDoMT: getVal('phanDoMT'),
+                    ketQuaAIChung: getVal('ketQuaAIChung'),
+                    ketLuanMP: getVal('ketLuanMP'),
+                    ketLuanMT: getVal('ketLuanMT'),
+                    xuTriVongMac: getVal('xuTriVongMac'),
+                    xuTriBenhKhac: getVal('xuTriBenhKhac'),
+                    noiChuyenVien: getVal('noiChuyenVien'),
+                    ghiChu: getVal('ghiChu'),
+                    customValues: { ...(existing ? existing.customValues : {}), ...customValues }
+                };
+
+                if (realIndex >= 0) {
+                    this.data[realIndex] = patient;
+                    this.showToast(`Đã cập nhật hồ sơ #${patient.soTT} - ${patient.hoTen}`, "success");
+                } else {
+                    this.data.push(patient);
+                    this.showToast(`Đã lưu hồ sơ mới #${patient.soTT} - ${patient.hoTen}`, "success");
+                }
+
+                this.saveToStorage();
+                this.updateSummaryCounters();
+                this.handleFilterChange();
+                this.resetForm(false);
+                this.activateGroup('g1');
+            }
+
+            editRecordById(id) {
+                const realIndex = this.data.findIndex(item => item.id === id);
+                if (realIndex < 0) return;
+                const item = this.data[realIndex];
+
+                this.switchView('entry');
+                document.getElementById('editIndex').value = realIndex;
+                this.renderInputLayout();
+
+                const fixedFields = this.fieldLayout.filter(f => f.type !== 'custom' && f.enabled);
+                fixedFields.forEach(f => {
+                    const el = document.getElementById(f.id);
+                    if (!el) return;
+                    let val = item[f.id];
+                    if (f.type === 'date_vn' && val) val = this.normalizeDateToDDMMYYYY(val);
+                    el.value = (val === undefined || val === null || val === 'CHƯA NHẬP TÊN') ? '' : val;
+                });
+
+                if (item.customValues) {
+                    document.querySelectorAll('.custom-field-input').forEach(input => {
+                        const key = input.getAttribute('data-custom-field');
+                        input.value = item.customValues[key] || '';
+                    });
+                }
+
+                const badge = document.getElementById('formModeBadge');
+                badge.innerText = "Chế độ: Đang sửa";
+                badge.className = "text-[11px] font-bold px-3 py-0.5 rounded-full bg-amber-500 text-slate-900 border border-amber-600 shadow-sm";
+                document.getElementById('cancelEditBtn').classList.remove('hidden');
+                document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-check"></i> <span>Cập Nhật Hồ Sơ</span> <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-900 text-blue-100">F5</span>';
+
+                this.activateGroup('g1');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            deleteRecordById(id) {
+                const item = this.data.find(r => r.id === id);
+                if (!item) return;
+
+                this.openConfirmModal(
+                    "Xóa hồ sơ bệnh nhân",
+                    `Bạn có chắc chắn muốn xóa hồ sơ #${item.soTT} (${item.hoTen})? Thao tác này không thể hoàn tác.`,
+                    () => {
+                        this.data = this.data.filter(r => r.id !== id);
+                        this.selectedIds.delete(id);
+                        this.saveToStorage();
+                        this.updateSummaryCounters();
+                        this.handleFilterChange();
+                        this.updateBatchDeleteUI();
+                        this.showToast(`Đã xóa hồ sơ #${item.soTT}!`, "info");
+                    }
+                );
+            }
+
+            // ===================== PERIOD (TẤT CẢ vs THÁNG - NĂM) FILTERING =====================
+            setPeriodAll() {
+                this.periodMode = 'all';
+                this.selectedMonth = '';
+                this.syncPeriodUI();
+                this.syncReportMetaFromPeriod(false);
+                if (this.activeView === 'list') {
+                    this.handleFilterChange();
+                } else if (this.activeView === 'stats') {
+                    this.renderStatsDashboard();
+                }
+            }
+
+            handlePeriodPartChange(source) {
+                const mEl = document.getElementById(`${source}MonthSelect`);
+                const yEl = document.getElementById(`${source}YearInput`);
+                const monthVal = mEl ? mEl.value : '';
+                let yearVal = yEl ? yEl.value.trim() : '';
+
+                if (!monthVal) {
+                    this.setPeriodAll();
+                    return;
+                }
+
+                if (!yearVal || yearVal.length < 4) {
+                    yearVal = String(new Date().getFullYear());
+                }
+
+                this.periodMode = 'month_year';
+                this.selectedMonth = monthVal;
+                this.selectedYear = yearVal;
+                this.syncPeriodUI();
+                this.syncReportMetaFromPeriod(false);
+
+                if (this.activeView === 'list') {
+                    this.handleFilterChange();
+                } else if (this.activeView === 'stats') {
+                    this.renderStatsDashboard();
+                }
+            }
+
+            syncPeriodUI() {
+                const isAll = this.periodMode === 'all' || !this.selectedMonth;
+                ['list', 'stats'].forEach(prefix => {
+                    const allBtn = document.getElementById(`${prefix}PeriodAllBtn`);
+                    const mSel = document.getElementById(`${prefix}MonthSelect`);
+                    const yInp = document.getElementById(`${prefix}YearInput`);
+
+                    if (mSel) mSel.value = isAll ? '' : this.selectedMonth;
+                    if (yInp) yInp.value = this.selectedYear || String(new Date().getFullYear());
+
+                    if (allBtn) {
+                        if (isAll) {
+                            allBtn.className = prefix === 'stats'
+                                ? "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-700 text-white shadow-sm"
+                                : "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-blue-700 text-white shadow-sm";
+                        } else {
+                            allBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200";
+                        }
+                    }
+                });
+            }
+
+            matchesSelectedPeriod(item) {
+                if (this.periodMode === 'all' || !this.selectedMonth) return true;
+                const { month, year } = this.getMonthYearFromDDMMYYYY(item.ngayChup);
+                if (month !== this.selectedMonth) return false;
+                if (this.selectedYear && year !== this.selectedYear) return false;
+                return true;
+            }
+
+            // ===================== FILTERING, SORTING & DATA TABLE =====================
+            setQuickFilter(filterType) {
+                this.quickFilter = filterType;
+                const pills = ['all', 'refer', 'normal', 'incomplete'];
+                pills.forEach(p => {
+                    const btn = document.getElementById(`pill-${p}`);
+                    if (!btn) return;
+                    if (p === filterType) {
+                        if (p === 'refer') {
+                            btn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-rose-600 text-white border-rose-600 shadow-sm";
+                        } else if (p === 'normal') {
+                            btn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-emerald-600 text-white border-emerald-600 shadow-sm";
+                        } else if (p === 'incomplete') {
+                            btn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-amber-500 text-slate-900 border-amber-600 shadow-sm";
+                        } else {
+                            btn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-blue-700 text-white border-blue-700 shadow-sm";
+                        }
+                    } else {
+                        btn.className = "px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition border bg-white text-slate-600 border-slate-300 hover:bg-slate-100";
+                    }
+                });
+                this.handleFilterChange();
+            }
+
+            handleFilterChange() {
+                const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+                const sortMode = document.getElementById('sortSelect')?.value || 'entry_asc';
+
+                let list = this.data.filter(item => {
+                    if (!this.matchesSelectedPeriod(item)) return false;
+
+                    if (this.quickFilter === 'refer' && item.ketQuaAIChung !== 'Chuyển tuyến') return false;
+                    if (this.quickFilter === 'normal' && item.ketQuaAIChung !== 'Bình thường') return false;
+                    if (this.quickFilter === 'incomplete' && this.checkRecordComplete(item)) return false;
+
+                    if (query) {
+                        const haystack = [
+                            String(item.soTT || ''),
+                            item.ngayChup,
+                            item.hoTen,
+                            item.maCybersight,
+                            item.maBHYT,
+                            item.lienHe,
+                            item.ketQuaAIChung,
+                            item.xuTriVongMac
+                        ].join(' ').toLowerCase();
+                        if (!haystack.includes(query)) return false;
+                    }
+                    return true;
+                });
+
+                if (sortMode === 'entry_desc') {
+                    list = [...list].reverse();
+                } else if (sortMode === 'stt_asc') {
+                    list.sort((a, b) => (parseInt(a.soTT, 10) || 0) - (parseInt(b.soTT, 10) || 0));
+                } else if (sortMode === 'stt_desc') {
+                    list.sort((a, b) => (parseInt(b.soTT, 10) || 0) - (parseInt(a.soTT, 10) || 0));
+                } else if (sortMode === 'date_desc') {
+                    list.sort((a, b) => this.parseDateTimestamp(b.ngayChup) - this.parseDateTimestamp(a.ngayChup));
+                } else if (sortMode === 'date_asc') {
+                    list.sort((a, b) => this.parseDateTimestamp(a.ngayChup) - this.parseDateTimestamp(b.ngayChup));
+                } else if (sortMode === 'name_asc') {
+                    list.sort((a, b) => (a.hoTen || '').localeCompare(b.hoTen || '', 'vi'));
+                }
+
+                this.filteredData = list;
+                this.renderDataTable();
+            }
+
+            checkRecordComplete(item) {
+                for (const field of this.fieldLayout) {
+                    if (!field.enabled) continue;
+                    let val;
+                    if (field.type === 'custom') {
+                        val = item.customValues ? item.customValues[field.label] : '';
+                    } else {
+                        val = item[field.id];
+                    }
+                    if (val === undefined || val === null || val === '' || val === 'CHƯA NHẬP TÊN' || Number.isNaN(val)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            renderDataTable() {
+                const tbody = document.getElementById('patientTableBody');
+                const emptyState = document.getElementById('emptyTableState');
+                const countBadge = document.getElementById('listRecordCount');
+                if (!tbody) return;
+
+                tbody.innerHTML = '';
+                if (countBadge) countBadge.innerText = this.filteredData.length;
+
+                if (this.filteredData.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                emptyState.classList.add('hidden');
+
+                this.filteredData.forEach((item) => {
+                    const isChecked = this.selectedIds.has(item.id);
+                    const isComplete = this.checkRecordComplete(item);
+
+                    const statusBadge = isComplete
+                        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-check"></i> Đủ</span>`
+                        : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fa-solid fa-exclamation"></i> Thiếu</span>`;
+
+                    let aiBadge = `<span class="text-slate-400">--</span>`;
+                    if (item.ketQuaAIChung === 'Chuyển tuyến') {
+                        aiBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-300"><i class="fa-solid fa-share"></i> Chuyển tuyến</span>`;
+                    } else if (item.ketQuaAIChung === 'Bình thường') {
+                        aiBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300"><i class="fa-solid fa-check"></i> Bình thường</span>`;
+                    } else if (item.ketQuaAIChung) {
+                        aiBadge = `<span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300">${item.ketQuaAIChung}</span>`;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = `transition ${isChecked ? 'bg-blue-50/70' : 'hover:bg-slate-50'}`;
+                    tr.innerHTML = `
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="app.toggleSelectRow(event, '${item.id}')" class="rounded border-slate-300 text-blue-600 w-3.5 h-3.5 cursor-pointer">
+                        </td>
+                        <td class="p-2.5 text-center font-mono font-extrabold text-blue-900">${item.soTT}</td>
+                        <td class="p-2.5 font-mono font-semibold text-slate-700">${this.normalizeDateToDDMMYYYY(item.ngayChup) || '--'}</td>
+                        <td class="p-2.5 font-mono text-[11px] font-semibold text-indigo-800">${item.maCybersight || '<span class="text-slate-400">--</span>'}</td>
+                        <td class="p-2.5">
+                            <div class="font-bold text-slate-900 uppercase">${item.hoTen}</div>
+                            <div class="text-[10px] text-slate-500 font-mono">${item.maBHYT || ''} ${item.lienHe ? '• ' + item.lienHe : ''}</div>
+                        </td>
+                        <td class="p-2.5 text-slate-700">
+                            <div class="font-semibold">${item.gioiTinh || '--'}</div>
+                            <div class="text-[10px] font-mono text-slate-500">${this.normalizeDateToDDMMYYYY(item.ngaySinh) || '--'}</div>
+                        </td>
+                        <td class="p-2.5 font-semibold text-slate-700">${item.tipDTD || '--'}</td>
+                        <td class="p-2.5 text-[11px]">
+                            <div><span class="font-bold text-slate-500">MP:</span> <span class="font-semibold text-slate-800">${item.phanDoMP || '--'}</span></div>
+                            <div><span class="font-bold text-slate-500">MT:</span> <span class="font-semibold text-slate-800">${item.phanDoMT || '--'}</span></div>
+                        </td>
+                        <td class="p-2.5">${aiBadge}</td>
+                        <td class="p-2.5 text-[11px] font-semibold text-slate-700">${item.xuTriVongMac || '--'}</td>
+                        <td class="p-2.5 text-center">${statusBadge}</td>
+                        <td class="p-2.5 text-center">
+                            <div class="inline-flex items-center gap-1">
+                                <button type="button" onclick="app.editRecordById('${item.id}')" title="Sửa hồ sơ" class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-bold transition">
+                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                </button>
+                                <button type="button" onclick="app.deleteRecordById('${item.id}')" title="Xóa hồ sơ" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-[11px] font-bold transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // ===================== MULTI-SELECT & BATCH DELETE =====================
+            toggleSelectRow(e, id) {
+                e.stopPropagation();
+                if (e.target.checked) this.selectedIds.add(id);
+                else this.selectedIds.delete(id);
+                this.renderDataTable();
+                this.updateBatchDeleteUI();
+            }
+
+            toggleSelectAll(masterCheckbox) {
+                if (masterCheckbox.checked) {
+                    this.filteredData.forEach(item => this.selectedIds.add(item.id));
+                } else {
+                    this.selectedIds.clear();
+                }
+                this.renderDataTable();
+                this.updateBatchDeleteUI();
+            }
+
+            updateBatchDeleteUI() {
+                const btn = document.getElementById('batchDeleteBtn');
+                const countEl = document.getElementById('selectedCount');
+                if (!btn || !countEl) return;
+                countEl.innerText = this.selectedIds.size;
+                if (this.selectedIds.size > 0) {
+                    btn.classList.remove('hidden');
+                    btn.classList.add('inline-flex');
+                } else {
+                    btn.classList.add('hidden');
+                    btn.classList.remove('inline-flex');
+                }
+            }
+
+            deleteSelectedItems() {
+                if (this.selectedIds.size === 0) return;
+                const count = this.selectedIds.size;
+                this.openConfirmModal(
+                    "Xóa nhiều hồ sơ",
+                    `Bạn có chắc chắn muốn xóa ${count} hồ sơ bệnh nhân đã chọn không?`,
+                    () => {
+                        this.data = this.data.filter(item => !this.selectedIds.has(item.id));
+                        this.selectedIds.clear();
+                        const masterCb = document.getElementById('selectAllCheckbox');
+                        if (masterCb) masterCb.checked = false;
+                        this.saveToStorage();
+                        this.updateSummaryCounters();
+                        this.handleFilterChange();
+                        this.updateBatchDeleteUI();
+                        this.showToast(`Đã xóa ${count} hồ sơ đã chọn!`, "info");
+                    }
+                );
+            }
+
+            // ===================== REPORT HEADER METADATA (C3-C7, J3-J7, O3-O9) =====================
+            toggleReportMetaPanel() {
+                const panel = document.getElementById('reportMetaPanel');
+                if (!panel) return;
+                const isHidden = panel.classList.toggle('hidden');
+                if (!isHidden) {
+                    this.syncReportMetaFromPeriod(false);
+                }
+            }
+
+            computeUniquePatientCount(rows) {
+                const seen = new Set();
+                rows.forEach((r, idx) => {
+                    const key = (r.maBHYT || r.maCybersight || `${r.hoTen}_${r.ngaySinh}` || `row_${idx}`).trim().toUpperCase();
+                    seen.add(key);
+                });
+                return seen.size;
+            }
+
+            syncReportMetaFromPeriod(notify = false) {
+                const rows = this.getRecordsForSelectedPeriod();
+                const uniquePatients = this.computeUniquePatientCount(rows);
+
+                this.reportMeta.c3 = this.uiSettings.subtitle || 'Khoa Mắt - BV ĐKKV Thủ Đức';
+
+                if (this.periodMode === 'month_year' && this.selectedMonth) {
+                    const y = parseInt(this.selectedYear || new Date().getFullYear(), 10);
+                    const m = parseInt(this.selectedMonth, 10);
+                    const lastDay = new Date(y, m, 0).getDate();
+                    this.reportMeta.c4 = String(y);
+                    this.reportMeta.c5 = this.selectedMonth;
+                    this.reportMeta.c6 = `01/${this.selectedMonth}/${y}`;
+                    this.reportMeta.c7 = `${String(lastDay).padStart(2, '0')}/${this.selectedMonth}/${y}`;
+                } else {
+                    const timestamps = rows
+                        .map(r => ({ ts: this.parseDateTimestamp(r.ngayChup), str: this.normalizeDateToDDMMYYYY(r.ngayChup) }))
+                        .filter(x => x.ts > 0)
+                        .sort((a, b) => a.ts - b.ts);
+                    this.reportMeta.c4 = String(new Date().getFullYear());
+                    this.reportMeta.c5 = 'Tất cả';
+                    this.reportMeta.c6 = timestamps.length > 0 ? timestamps[0].str : this.getTodayDDMMYYYY();
+                    this.reportMeta.c7 = timestamps.length > 0 ? timestamps[timestamps.length - 1].str : this.getTodayDDMMYYYY();
+                }
+
+                this.reportMeta.j4 = uniquePatients;
+                if (!this.reportMeta.j5) this.reportMeta.j5 = this.getTodayDDMMYYYY();
+
+                // Populate UI fields if mounted
+                const setIfPresent = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val ?? '';
+                };
+                setIfPresent('meta_C3', this.reportMeta.c3);
+                setIfPresent('meta_C4', this.reportMeta.c4);
+                setIfPresent('meta_C5', this.reportMeta.c5);
+                setIfPresent('meta_C6', this.reportMeta.c6);
+                setIfPresent('meta_C7', this.reportMeta.c7);
+                setIfPresent('meta_J3', rows.length);
+                setIfPresent('meta_J4', this.reportMeta.j4);
+                setIfPresent('meta_J5', this.reportMeta.j5);
+                setIfPresent('meta_J6', this.reportMeta.j6);
+                setIfPresent('meta_J7', this.reportMeta.j7);
+
+                this.renderServiceMetaTable();
+                localStorage.setItem(this.STORAGE_REPORT_META_KEY, JSON.stringify(this.reportMeta));
+
+                if (notify) {
+                    this.showToast("Đã đồng bộ thông tin đầu báo cáo C3–C7 & J3–J7!", "success");
+                }
+            }
+
+            renderServiceMetaTable() {
+                const tbody = document.getElementById('serviceMetaTableBody');
+                if (!tbody) return;
+                if (!Array.isArray(this.reportMeta.services) || this.reportMeta.services.length !== this.SERVICE_LIST.length) {
+                    this.reportMeta.services = this.SERVICE_LIST.map(() => ({ o: '', p: '', q: '', r: '' }));
+                }
+
+                const buildSelect = (rowIdx, colKey, currentVal) => `
+                    <select onchange="app.updateServiceMeta(${rowIdx}, '${colKey}', this.value)" class="w-full px-1.5 py-1 rounded border border-slate-300 text-xs font-bold text-center">
+                        <option value="" ${currentVal === '' ? 'selected' : ''}>--</option>
+                        <option value="Có" ${currentVal === 'Có' ? 'selected' : ''}>Có</option>
+                        <option value="Không" ${currentVal === 'Không' ? 'selected' : ''}>Không</option>
+                    </select>`;
+
+                tbody.innerHTML = this.SERVICE_LIST.map((srvName, idx) => {
+                    const rowObj = this.reportMeta.services[idx] || { o: '', p: '', q: '', r: '' };
+                    return `
+                        <tr>
+                            <td class="p-1.5 border border-slate-200 font-bold text-slate-800">
+                                <span class="text-[10px] font-mono text-slate-400 mr-1">N${idx + 3}</span>${srvName}
+                            </td>
+                            <td class="p-1 border border-slate-200">${buildSelect(idx, 'o', rowObj.o)}</td>
+                            <td class="p-1 border border-slate-200">${buildSelect(idx, 'p', rowObj.p)}</td>
+                            <td class="p-1 border border-slate-200">${buildSelect(idx, 'q', rowObj.q)}</td>
+                            <td class="p-1 border border-slate-200">
+                                <input type="text" value="${(rowObj.r || '').replace(/"/g, '&quot;')}" oninput="app.updateServiceMeta(${idx}, 'r', this.value)" placeholder="Ghi chú..." class="w-full px-2 py-1 rounded border border-slate-300 text-xs">
+                            </td>
+                        </tr>`;
+                }).join('');
+            }
+
+            updateServiceMeta(rowIdx, colKey, val) {
+                if (!this.reportMeta.services[rowIdx]) {
+                    this.reportMeta.services[rowIdx] = { o: '', p: '', q: '', r: '' };
+                }
+                this.reportMeta.services[rowIdx][colKey] = val;
+                localStorage.setItem(this.STORAGE_REPORT_META_KEY, JSON.stringify(this.reportMeta));
+            }
+
+            saveReportMeta() {
+                const get = (id, fallback) => {
+                    const el = document.getElementById(id);
+                    return el ? el.value.trim() : fallback;
+                };
+                this.reportMeta.c3 = get('meta_C3', this.reportMeta.c3);
+                this.reportMeta.c4 = get('meta_C4', this.reportMeta.c4);
+                this.reportMeta.c5 = get('meta_C5', this.reportMeta.c5);
+                this.reportMeta.c6 = get('meta_C6', this.reportMeta.c6);
+                this.reportMeta.c7 = get('meta_C7', this.reportMeta.c7);
+                this.reportMeta.j4 = get('meta_J4', this.reportMeta.j4);
+                this.reportMeta.j5 = get('meta_J5', this.reportMeta.j5);
+                this.reportMeta.j6 = get('meta_J6', this.reportMeta.j6);
+                this.reportMeta.j7 = get('meta_J7', this.reportMeta.j7);
+                localStorage.setItem(this.STORAGE_REPORT_META_KEY, JSON.stringify(this.reportMeta));
+            }
+
+            // ===================== THỐNG KÊ - BÁO CÁO TỔNG QUAN =====================
+            getRecordsForSelectedPeriod() {
+                if (this.periodMode === 'all' || !this.selectedMonth) return this.data;
+                return this.data.filter(item => this.matchesSelectedPeriod(item));
+            }
+
+            renderStatsDashboard() {
+                const container = document.getElementById('statsDashboardContent');
+                const scopeNote = document.getElementById('statsScopeNote');
+                if (!container) return;
+
+                const rows = this.getRecordsForSelectedPeriod();
+                if (scopeNote) {
+                    scopeNote.innerText = (this.periodMode === 'month_year' && this.selectedMonth)
+                        ? `Phạm vi: Tháng ${this.selectedMonth}/${this.selectedYear} (${rows.length} hồ sơ)`
+                        : `Phạm vi: Tất cả thời gian (${rows.length} hồ sơ)`;
+                }
+
+                const total = rows.length;
+                if (total === 0) {
+                    container.innerHTML = `
+                        <div class="py-12 text-center text-slate-400 border border-dashed border-slate-300 rounded-2xl">
+                            <i class="fa-solid fa-chart-column text-4xl mb-2 text-slate-300"></i>
+                            <p class="text-xs font-semibold text-slate-500">Chưa có dữ liệu hồ sơ trong khoảng thời gian đã chọn để thống kê.</p>
+                        </div>`;
+                    return;
+                }
+
+                const pct = (n) => ((n / total) * 100).toFixed(1);
+                const completeCount = rows.filter(r => this.checkRecordComplete(r)).length;
+                const referCount = rows.filter(r => r.ketQuaAIChung === 'Chuyển tuyến').length;
+                const normalCount = rows.filter(r => r.ketQuaAIChung === 'Bình thường').length;
+                const dilatedCount = rows.filter(r => r.nhoGian === 'Có').length;
+
+                const countByField = (field, options) => {
+                    const map = {};
+                    options.forEach(o => map[o] = 0);
+                    map['Chưa nhập'] = 0;
+                    rows.forEach(r => {
+                        const v = r[field];
+                        if (!v) map['Chưa nhập']++;
+                        else if (map[v] !== undefined) map[v]++;
+                        else map[v] = (map[v] || 0) + 1;
+                    });
+                    return map;
+                };
+
+                const tipCounts = countByField('tipDTD', this.OPTIONS.tipDTD);
+                const xuTriCounts = countByField('xuTriVongMac', this.OPTIONS.xuTriVongMac);
+                const aiMPCounts = countByField('phanDoMP', this.OPTIONS.phanDoAI);
+                const aiMTCounts = countByField('phanDoMT', this.OPTIONS.phanDoAI);
+
+                const renderDistributionRows = (countsObj, barColor = 'bg-blue-600') => {
+                    return Object.entries(countsObj)
+                        .filter(([, c]) => c > 0)
+                        .map(([label, c]) => `
+                            <tr class="border-b border-slate-100 last:border-0">
+                                <td class="py-2 pr-3 font-semibold text-slate-700">${label}</td>
+                                <td class="py-2 w-36">
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                                        <div class="${barColor} h-2 rounded-full" style="width: ${pct(c)}%"></div>
+                                    </div>
+                                </td>
+                                <td class="py-2 pl-3 text-right font-mono font-extrabold text-slate-900 whitespace-nowrap">${c} <span class="text-[10px] font-normal text-slate-500">(${pct(c)}%)</span></td>
+                            </tr>
+                        `).join('');
+                };
+
+                container.innerHTML = `
+                    <!-- Top 4 KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                        <div class="p-4 rounded-2xl border border-blue-200 bg-blue-50/60 surface-sub">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-extrabold uppercase text-blue-900">Tổng số ca chụp</span>
+                                <span class="w-8 h-8 rounded-xl bg-blue-700 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></span>
+                            </div>
+                            <div class="text-2xl font-extrabold text-blue-950 mt-2">${total} <span class="text-xs font-semibold text-slate-500">bệnh nhân</span></div>
+                            <div class="text-[11px] text-slate-600 mt-1">Nhỏ giãn đồng tử: <strong>${dilatedCount}</strong> (${pct(dilatedCount)}%)</div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl border border-rose-200 bg-rose-50/60 surface-sub">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-extrabold uppercase text-rose-900">AI: Chuyển tuyến</span>
+                                <span class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-share"></i></span>
+                            </div>
+                            <div class="text-2xl font-extrabold text-rose-700 mt-2">${referCount} <span class="text-xs font-bold text-rose-600">(${pct(referCount)}%)</span></div>
+                            <div class="text-[11px] text-slate-600 mt-1">Cần khám chuyên khoa Mắt / can thiệp</div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 surface-sub">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-extrabold uppercase text-emerald-900">AI: Bình thường</span>
+                                <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></span>
+                            </div>
+                            <div class="text-2xl font-extrabold text-emerald-700 mt-2">${normalCount} <span class="text-xs font-bold text-emerald-600">(${pct(normalCount)}%)</span></div>
+                            <div class="text-[11px] text-slate-600 mt-1">Chưa ghi nhận tổn thương cần chuyển tuyến</div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/60 surface-sub">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-extrabold uppercase text-amber-900">Hồ sơ hoàn thiện</span>
+                                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-900 flex items-center justify-center text-xs"><i class="fa-solid fa-clipboard-check"></i></span>
+                            </div>
+                            <div class="text-2xl font-extrabold text-amber-800 mt-2">${completeCount}/${total} <span class="text-xs font-bold">(${pct(completeCount)}%)</span></div>
+                            <div class="text-[11px] text-slate-600 mt-1">Còn thiếu thông tin: <strong>${total - completeCount}</strong> hồ sơ</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Breakdown Tables -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <!-- Típ ĐTĐ -->
+                        <div class="p-4 rounded-2xl border border-slate-200 bg-white surface-sub">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-droplet text-blue-600"></i> Phân bố theo Típ Đái Tháo Đường (Cột 11)
+                            </h3>
+                            <table class="w-full text-xs">
+                                <tbody>${renderDistributionRows(tipCounts, 'bg-blue-600')}</tbody>
+                            </table>
+                        </div>
+
+                        <!-- Hướng xử trí võng mạc -->
+                        <div class="p-4 rounded-2xl border border-slate-200 bg-white surface-sub">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-teal-950 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-stethoscope text-teal-600"></i> Hướng Xử Trí Bệnh Lý Võng Mạc (Cột 26)
+                            </h3>
+                            <table class="w-full text-xs">
+                                <tbody>${renderDistributionRows(xuTriCounts, 'bg-teal-600')}</tbody>
+                            </table>
+                        </div>
+
+                        <!-- Phân độ AI Mắt Phải -->
+                        <div class="p-4 rounded-2xl border border-indigo-200 bg-indigo-50/30 surface-sub">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-indigo-950 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-indigo-600"></i> Phân Độ Cybersight AI – Mắt Phải (Cột 21)
+                            </h3>
+                            <table class="w-full text-xs">
+                                <tbody>${renderDistributionRows(aiMPCounts, 'bg-indigo-600')}</tbody>
+                            </table>
+                        </div>
+
+                        <!-- Phân độ AI Mắt Trái -->
+                        <div class="p-4 rounded-2xl border border-indigo-200 bg-indigo-50/30 surface-sub">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-indigo-950 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-purple-600"></i> Phân Độ Cybersight AI – Mắt Trái (Cột 22)
+                            </h3>
+                            <table class="w-full text-xs">
+                                <tbody>${renderDistributionRows(aiMTCounts, 'bg-purple-600')}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateSummaryCounters() {
+                const menuBadge = document.getElementById('menuRecordBadge');
+                if (menuBadge) menuBadge.innerText = this.data.length;
+            }
+
+            // ===================== UI & SYSTEM SETTINGS =====================
+            applyUISettings() {
+                document.body.classList.toggle('theme-dark', this.uiSettings.theme === 'dark');
+
+                const htmlEl = document.documentElement;
+                htmlEl.classList.remove('font-scale-sm', 'font-scale-md', 'font-scale-lg');
+                htmlEl.classList.add(`font-scale-${this.uiSettings.fontScale || 'md'}`);
+
+                const subEl = document.getElementById('headerSubtitle');
+                if (subEl && this.uiSettings.subtitle) subEl.innerText = this.uiSettings.subtitle;
+
+                const bar = document.getElementById('leftMenuBar');
+                if (bar && this.uiSettings.sidebarCollapsed) {
+                    bar.classList.remove('w-64');
+                    bar.classList.add('w-[68px]', 'collapsed');
+                }
+            }
+
+            syncSettingsUI() {
+                const subInput = document.getElementById('settingSubtitleInput');
+                if (subInput) subInput.value = this.uiSettings.subtitle || '';
+
+                ['light', 'dark'].forEach(t => {
+                    const btn = document.getElementById(`btn-theme-${t}`);
+                    if (!btn) return;
+                    const isActive = this.uiSettings.theme === t;
+                    btn.className = isActive
+                        ? "px-3 py-2.5 rounded-xl border-2 border-blue-500 bg-blue-700 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm"
+                        : "px-3 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-600 text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-100";
+                });
+
+                ['sm', 'md', 'lg'].forEach(s => {
+                    const btn = document.getElementById(`btn-font-${s}`);
+                    if (!btn) return;
+                    const isActive = this.uiSettings.fontScale === s;
+                    btn.className = isActive
+                        ? "px-3 py-2 rounded-xl border-2 border-blue-500 bg-blue-700 text-white text-xs font-extrabold shadow-sm"
+                        : "px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100";
+                });
+            }
+
+            updateUISetting(key, value) {
+                this.uiSettings[key] = value;
+                localStorage.setItem(this.STORAGE_SETTINGS_KEY, JSON.stringify(this.uiSettings));
+                this.applyUISettings();
+                this.syncSettingsUI();
+                this.syncStickyOffsets();
+                this.showToast("Đã cập nhật giao diện!", "success");
+            }
+
+            saveSubtitleSetting() {
+                const val = document.getElementById('settingSubtitleInput')?.value.trim();
+                if (!val) return;
+                this.reportMeta.c3 = val;
+                localStorage.setItem(this.STORAGE_REPORT_META_KEY, JSON.stringify(this.reportMeta));
+                this.updateUISetting('subtitle', val);
+            }
+
+            // ===================== CÀI ĐẶT BIẾN (FULL PAGE VIEW) =====================
+            renderFieldManager() {
+                const listEl = document.getElementById('fieldManagerList');
+                if (!listEl) return;
+                listEl.innerHTML = '';
+
+                const groupNames = { g1: 'Nhóm 1', g2: 'Nhóm 2', g3: 'AI', g4: 'Nhóm 4' };
+
+                this.fieldLayout.forEach((field) => {
+                    const div = document.createElement('div');
+                    div.draggable = true;
+                    div.dataset.fieldId = field.id;
+                    div.className = "flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 cursor-grab shadow-sm";
+                    div.innerHTML = `
+                        <span class="text-slate-400 px-1"><i class="fa-solid fa-grip-vertical"></i></span>
+                        <span class="text-[11px] font-mono font-bold text-slate-400 w-8">${field.col ? '(' + field.col + ')' : '[+]'}</span>
+                        <span class="flex-1 text-xs font-bold truncate ${field.enabled ? 'text-slate-800' : 'text-slate-400 line-through'}">${field.label}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-600 shrink-0">${field.type === 'custom' ? 'Tùy chỉnh' : groupNames[field.group]}</span>
+                        <button type="button" onclick="app.toggleField('${field.id}')" class="w-8 h-8 rounded-lg hover:bg-slate-100 ${field.enabled ? 'text-emerald-600' : 'text-slate-400'} shrink-0" title="${field.enabled ? 'Đang hiện' : 'Đang ẩn'}">
+                            <i class="fa-solid ${field.enabled ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                        </button>
+                    `;
+
+                    div.addEventListener('dragstart', () => {
+                        this.draggedFieldId = field.id;
+                        div.classList.add('opacity-50');
+                    });
+                    div.addEventListener('dragend', () => {
+                        div.classList.remove('opacity-50');
+                        this.draggedFieldId = null;
+                    });
+                    div.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        div.classList.add('border-blue-500');
+                    });
+                    div.addEventListener('dragleave', () => div.classList.remove('border-blue-500'));
+                    div.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        div.classList.remove('border-blue-500');
+                        this.moveField(this.draggedFieldId, field.id);
+                    });
+
+                    listEl.appendChild(div);
+                });
+
+                this.renderCustomFieldsList();
+            }
+
+            moveField(fromId, toId) {
+                if (!fromId || !toId || fromId === toId) return;
+                const fromIndex = this.fieldLayout.findIndex(f => f.id === fromId);
+                const toIndex = this.fieldLayout.findIndex(f => f.id === toId);
+                if (fromIndex < 0 || toIndex < 0) return;
+
+                const [moved] = this.fieldLayout.splice(fromIndex, 1);
+                this.fieldLayout.splice(toIndex, 0, moved);
+                this.persistFieldLayout();
+                this.renderFieldManager();
+            }
+
+            toggleField(fieldId) {
+                const field = this.fieldLayout.find(f => f.id === fieldId);
+                if (!field) return;
+                field.enabled = !field.enabled;
+                this.persistFieldLayout();
+                this.renderFieldManager();
+            }
+
+            persistFieldLayout() {
+                localStorage.setItem(this.STORAGE_LAYOUT_KEY, JSON.stringify(this.fieldLayout));
+            }
+
+            resetFieldLayout() {
+                this.openConfirmModal(
+                    "Khôi phục bố cục mặc định",
+                    "Thứ tự các trường và trạng thái ẩn/hiện sẽ trở về mặc định theo chuẩn 29 cột của Orbis. Tiếp tục?",
+                    () => {
+                        localStorage.removeItem(this.STORAGE_LAYOUT_KEY);
+                        this.rebuildFieldLayout();
+                        this.persistFieldLayout();
+                        this.renderFieldManager();
+                        this.showToast("Đã khôi phục bố cục mặc định!", "info");
+                    }
+                );
+            }
+
+            renderCustomFieldsList() {
+                const listEl = document.getElementById('customFieldsList');
+                if (!listEl) return;
+                listEl.innerHTML = '';
+                if (!this.customFields.length) {
+                    listEl.innerHTML = `<p class="text-xs text-slate-500 font-medium">Chưa có biến số tùy chỉnh nào.</p>`;
+                    return;
+                }
+                this.customFields.forEach(field => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-sm";
+                    const safeField = field.replace(/'/g, "\\'");
+                    div.innerHTML = `
+                        <span class="font-bold text-slate-800">${field}</span>
+                        <button type="button" onclick="app.removeCustomField('${safeField}')" class="text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 transition" title="Xóa biến số">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>`;
+                    listEl.appendChild(div);
+                });
+            }
+
+            addCustomField() {
+                const input = document.getElementById('newFieldName');
+                const fieldName = input.value.trim();
+                if (!fieldName) {
+                    this.showToast("Vui lòng nhập tên biến số mới!", "warning");
+                    return;
+                }
+                if (this.customFields.includes(fieldName)) {
+                    this.showToast("Biến số này đã tồn tại!", "warning");
+                    return;
+                }
+                this.customFields.push(fieldName);
+                localStorage.setItem(this.STORAGE_CUSTOM_KEY, JSON.stringify(this.customFields));
+                this.rebuildFieldLayout();
+                this.persistFieldLayout();
+                input.value = '';
+                this.renderFieldManager();
+                this.showToast(`Đã thêm biến số "${fieldName}"`, "success");
+            }
+
+            removeCustomField(fieldName) {
+                this.openConfirmModal(
+                    "Xóa biến số tùy chỉnh",
+                    `Xóa biến số "${fieldName}" khỏi danh sách nhập liệu?`,
+                    () => {
+                        this.customFields = this.customFields.filter(f => f !== fieldName);
+                        localStorage.setItem(this.STORAGE_CUSTOM_KEY, JSON.stringify(this.customFields));
+                        this.rebuildFieldLayout();
+                        this.persistFieldLayout();
+                        this.renderFieldManager();
+                        this.showToast(`Đã xóa biến số "${fieldName}"`, "info");
+                    }
+                );
+            }
+
+            // ===================== STORAGE & 100% EXACT TEMPLATE EXCEL (.XLSX) EXPORT =====================
+            saveToStorage() {
+                localStorage.setItem(this.STORAGE_DATA_KEY, JSON.stringify(this.data));
+            }
+
+            async exportExcelTemplate(isOrbisAnonymized = false) {
+                const exportRows = this.getRecordsForSelectedPeriod();
+                if (exportRows.length === 0) {
+                    this.showToast("Không có dữ liệu trong khoảng thời gian đã chọn để xuất!", "warning");
+                    return;
+                }
+
+                // Ensure C3-C7, J3-J7, O3-O9 metadata is up-to-date
+                this.syncReportMetaFromPeriod(false);
+
+                if (typeof ExcelJS === 'undefined') {
+                    this.showToast("Đang tải thư viện xuất Excel, vui lòng thử lại sau giây lát!", "warning");
+                    return;
+                }
+
+                try {
+                    const wb = new ExcelJS.Workbook();
+                    wb.creator = 'Dr. Nhat Truong';
+                    wb.created = new Date();
+
+                    const ws = wb.addWorksheet('MẪU', {
+                        views: [{ showGridLines: true }]
+                    });
+
+                    // Exact column widths matching Mẫu báo cáo chụp đáy mắt 2026.xlsx
+                    const baseWidths = [
+                        5.2,  // A: Stt (1)
+                        12.5, // B: Ngày chụp (2)
+                        21.0, // C: Mã BN Cybersight AI (3)
+                        18.0, // D: Mã BHYT (4)
+                        27.0, // E: Họ và tên (5)
+                        19.5, // F: Xã/phường (6)
+                        18.0, // G: Tỉnh/TP (7)
+                        23.5, // H: ĐT & Email (8)
+                        18.5, // I: Giới tính (9)
+                        17.5, // J: Ngày sinh (10)
+                        15.0, // K: Típ ĐTĐ (11)
+                        15.5, // L: Năm CĐ ĐTĐ (12)
+                        16.5, // M: CĐ THA/TM (13)
+                        19.0, // N: Năm CĐ THA (14)
+                        13.5, // O: Thị lực MP (15)
+                        13.5, // P: Thị lực MT (16)
+                        14.5, // Q: Nhỏ giãn (17)
+                        18.5, // R: Trạng thái AI (18)
+                        13.5, // S: CL ảnh MP (19)
+                        13.5, // T: CL ảnh MT (20)
+                        39.5, // U: Phân độ AI MP (21)
+                        40.0, // V: Phân độ AI MT (22)
+                        16.5, // W: KQ chung AI (23)
+                        20.0, // X: KL BSCK Mắt MP (24)
+                        21.0, // Y: KL BSCK Mắt MT (25)
+                        18.0, // Z: Xử trí VM (26)
+                        20.0, // AA: Xử trí khác (27)
+                        22.0, // AB: Chuyển viện (28)
+                        27.0  // AC: Ghi chú (29)
+                    ];
+                    this.customFields.forEach(() => baseWidths.push(20.0));
+                    ws.columns = baseWidths.map(w => ({ width: w }));
+
+                    // Exact Row Heights (Rows 1..13)
+                    const rowHeights = {
+                        1: 42.0,
+                        2: 40.35,
+                        3: 28.35,
+                        4: 29.45,
+                        5: 28.35,
+                        6: 22.35,
+                        7: 32.45,
+                        8: 29.45,
+                        9: 27.6,
+                        10: 14.0,
+                        11: 36.6,
+                        12: 71.45,
+                        13: 18.0
+                    };
+                    Object.entries(rowHeights).forEach(([r, h]) => {
+                        ws.getRow(Number(r)).height = h;
+                    });
+
+                    // Color & Style Helpers
+                    const fillGray = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } }; // theme:3 tint 0.75
+                    const fillPeach = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFBE2D5' } }; // theme:5 tint 0.80
+                    const thinSide = { style: 'thin', color: { argb: 'FF000000' } };
+                    const doubleSide = { style: 'double', color: { argb: 'FF000000' } };
+                    const borderThinAll = { top: thinSide, bottom: thinSide, left: thinSide, right: thinSide };
+
+                    // ================= ROW 1: TITLE =================
+                    const cB1 = ws.getCell('B1');
+                    cB1.value = 'BÁO CÁO CHỤP ẢNH ĐÁY MẮT VÀ QUẢN LÝ BỆNH VÕNG MẠC';
+                    cB1.font = { name: 'Times New Roman', size: 18, bold: true, color: { argb: 'FFC00000' } };
+
+                    // ================= ROW 2: SERVICE TABLE HEADER =================
+                    ws.getCell('B2').border = { bottom: doubleSide };
+                    ws.getCell('C2').border = { bottom: doubleSide };
+
+                    const srvHeaders = [
+                        { cell: 'N2', text: 'Dịch vụ liên quan hiện được cung cấp tại đơn vị', align: 'left' },
+                        { cell: 'O2', text: 'Miễn phí', align: 'center' },
+                        { cell: 'P2', text: 'Thu phí dịch vụ', align: 'center' },
+                        { cell: 'Q2', text: 'BHYT chi trả', align: 'center' },
+                        { cell: 'R2', text: 'Ghi chú', align: 'center' }
+                    ];
+                    srvHeaders.forEach(h => {
+                        const cell = ws.getCell(h.cell);
+                        cell.value = h.text;
+                        cell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FFFF0000' } };
+                        cell.fill = fillGray;
+                        cell.border = borderThinAll;
+                        cell.alignment = { horizontal: h.align, vertical: 'middle', wrapText: true };
+                    });
+
+                    // ================= ROWS 3–7: C3–C7 & J3–J7 =================
+                    const lastDataRow = 13 + exportRows.length;
+                    const uniquePatientCount = Number(this.reportMeta.j4) || this.computeUniquePatientCount(exportRows);
+
+                    const leftMetaRows = [
+                        { r: 3, label: 'Đơn vị:', val: this.reportMeta.c3 || this.uiSettings.subtitle, valColor: 'FFC00000', boldVal: true, numFmt: '@' },
+                        { r: 4, label: 'Năm:', val: Number(this.reportMeta.c4) || this.reportMeta.c4, valColor: 'FF000000', boldVal: false, numFmt: 'General' },
+                        { r: 5, label: 'Tháng:', val: String(this.reportMeta.c5 || ''), valColor: 'FF000000', boldVal: false, numFmt: '@' },
+                        { r: 6, label: 'Từ:', val: String(this.reportMeta.c6 || ''), valColor: 'FF000000', boldVal: false, numFmt: '@' },
+                        { r: 7, label: 'Đến:', val: String(this.reportMeta.c7 || ''), valColor: 'FF000000', boldVal: false, numFmt: '@' }
+                    ];
+
+                    leftMetaRows.forEach(item => {
+                        const bCell = ws.getCell(`B${item.r}`);
+                        bCell.value = item.label;
+                        bCell.font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF000000' } };
+                        bCell.fill = fillGray;
+                        bCell.border = { top: doubleSide, bottom: doubleSide, left: doubleSide, right: doubleSide };
+                        bCell.alignment = { vertical: 'middle' };
+
+                        const cCell = ws.getCell(`C${item.r}`);
+                        cCell.value = item.val;
+                        cCell.numFmt = item.numFmt;
+                        cCell.font = { name: 'Times New Roman', size: 12, bold: item.boldVal, color: { argb: item.valColor } };
+                        cCell.fill = fillGray;
+                        cCell.border = { top: doubleSide, bottom: doubleSide, left: doubleSide, right: doubleSide };
+                        cCell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    });
+
+                    // Middle Summary Block (I3:K7 with J3:K3 .. J7:K7 merged)
+                    const midMetaRows = [
+                        {
+                            r: 3,
+                            label: 'Tổng số lượt chụp:',
+                            val: { formula: `COUNTA(I14:I${lastDataRow})`, result: exportRows.length },
+                            valColor: 'FFC00000',
+                            boldVal: true
+                        },
+                        {
+                            r: 4,
+                            label: 'Tổng số ca chụp:',
+                            val: uniquePatientCount,
+                            valColor: 'FF000000',
+                            boldVal: false
+                        },
+                        {
+                            r: 5,
+                            label: 'Ngày lập báo cáo:',
+                            val: this.reportMeta.j5 || this.getTodayDDMMYYYY(),
+                            valColor: 'FF000000',
+                            boldVal: false
+                        },
+                        {
+                            r: 6,
+                            label: 'Người lập báo cáo:',
+                            val: this.reportMeta.j6 || '',
+                            valColor: 'FF000000',
+                            boldVal: false
+                        },
+                        {
+                            r: 7,
+                            label: 'Người duyệt báo cáo:',
+                            val: this.reportMeta.j7 || '',
+                            valColor: 'FF000000',
+                            boldVal: false
+                        }
+                    ];
+
+                    midMetaRows.forEach(item => {
+                        ws.mergeCells(`J${item.r}:K${item.r}`);
+                        const iCell = ws.getCell(`I${item.r}`);
+                        iCell.value = item.label;
+                        iCell.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF000000' } };
+                        iCell.fill = fillGray;
+                        iCell.border = { top: doubleSide, bottom: doubleSide, left: doubleSide };
+                        iCell.alignment = { vertical: 'middle' };
+
+                        const jCell = ws.getCell(`J${item.r}`);
+                        jCell.value = item.val;
+                        jCell.font = { name: 'Times New Roman', size: 12, bold: item.boldVal, color: { argb: item.valColor } };
+                        jCell.fill = fillGray;
+                        jCell.border = { top: doubleSide, bottom: doubleSide, left: thinSide, right: thinSide };
+                        jCell.alignment = { horizontal: 'left', vertical: 'middle' };
+
+                        const kCell = ws.getCell(`K${item.r}`);
+                        kCell.fill = fillGray;
+                        kCell.border = { top: doubleSide, bottom: doubleSide, right: thinSide };
+                    });
+
+                    // ================= ROWS 3–9: SERVICE TABLE (N3:R9 -> O3–O9) =================
+                    this.SERVICE_LIST.forEach((srvName, idx) => {
+                        const r = 3 + idx;
+                        const srvData = (this.reportMeta.services && this.reportMeta.services[idx]) || { o: '', p: '', q: '', r: '' };
+
+                        const nCell = ws.getCell(`N${r}`);
+                        nCell.value = srvName;
+                        nCell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FF000000' } };
+                        nCell.fill = fillGray;
+                        nCell.border = borderThinAll;
+                        nCell.alignment = { vertical: 'middle', wrapText: true };
+
+                        const mapCols = [
+                            { col: 'O', val: srvData.o || '' },
+                            { col: 'P', val: srvData.p || '' },
+                            { col: 'Q', val: srvData.q || '' },
+                            { col: 'R', val: srvData.r || '' }
+                        ];
+                        mapCols.forEach(mc => {
+                            const cell = ws.getCell(`${mc.col}${r}`);
+                            cell.value = mc.val;
+                            cell.font = { name: 'Times New Roman', size: 10, bold: false, color: { argb: 'FFFF0000' } };
+                            cell.fill = fillGray;
+                            cell.border = borderThinAll;
+                            cell.alignment = { horizontal: mc.col === 'R' ? 'left' : 'center', vertical: 'middle', wrapText: true };
+                        });
+                    });
+
+                    // ================= ROWS 7–9: INSTRUCTIONS & NOTES =================
+                    const cU7 = ws.getCell('U7');
+                    cU7.value = 'Cách nhập mục (21) và (22):';
+                    cU7.font = { name: 'Times New Roman', size: 14, bold: true, color: { argb: 'FFC00000' } };
+
+                    const cD8 = ws.getCell('D8');
+                    cD8.value = 'Lưu ý:';
+                    cD8.font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FFC00000' } };
+                    cD8.alignment = { horizontal: 'right', vertical: 'middle' };
+
+                    const cE8 = ws.getCell('E8');
+                    cE8.value = '- Các mục có sẵn đáp án, chỉ cần chọn : (9), (11), (13), (17), (18), (19), (20), (21), (22), (23)';
+                    cE8.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0E2841' } };
+
+                    const cU8 = ws.getCell('U8');
+                    cU8.value = '*) Cybersight AI thông báo âm tính với các tổn thương => Chọn: Bình thường';
+                    cU8.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0E2841' } };
+
+                    const cE9 = ws.getCell('E9');
+                    cE9.value = '-  Xóa thông tin các mục từ (4) đến (8) khi gửi báo cáo cho Orbis';
+                    cE9.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FFFF0000' } };
+
+                    const cU9 = ws.getCell('U9');
+                    cU9.value = '*) Cybersight AI thông báo phát hiện dấu hiệu cần chuyển tuyến => Chọn: Chuyển tuyến và kèm theo các kết quả phát hiện. Vd: 1. Chuyến tuyến (VMĐTĐ), 5. Chuyển tuyến (VMĐTĐ+Glocom), 7. Chuyển tyến (VMĐTĐ+Bất thường HĐ+Glocom),…..';
+                    cU9.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF156082' } };
+
+                    // ================= ROWS 11–13: TABLE HEADERS =================
+                    const headerSpecs = [
+                        { col: 'A', merge: 'A11:A12', r11: 'Stt', r12: null, r13: '(1)', peach: false },
+                        { col: 'B', merge: 'B11:B12', r11: 'Ngày chụp', r12: null, r13: '(2)', peach: false },
+                        { col: 'C', merge: 'C11:C12', r11: 'Mã người bệnh \ntrên Cybersight AI \n', r12: null, r13: '(3)', peach: false },
+                        { col: 'D', merge: 'D11:D12', r11: 'Mã BHYT', r12: null, r13: '(4)', peach: true },
+                        { col: 'E', merge: 'E11:E12', r11: 'Họ và tên \nNgười bệnh', r12: null, r13: '(5)', peach: true },
+                        { col: 'F', merge: 'F11:H11', r11: 'Địa chỉ', r12: 'Xã/phường', r13: '(6)', peach: true },
+                        { col: 'G', merge: null, r11: null, r12: 'Tỉnh/TP', r13: '(7)', peach: true },
+                        { col: 'H', merge: null, r11: null, r12: 'Điện thoại & Email liên lạc khi cần', r13: '(8)', peach: true },
+                        { col: 'I', merge: 'I11:I12', r11: 'Giới tính', r12: null, r13: '(9)', peach: false },
+                        { col: 'J', merge: 'J11:J12', r11: 'Ngày tháng năm sinh', r12: null, r13: '(10)', peach: false },
+                        { col: 'K', merge: 'K11:L11', r11: 'Bệnh sử Đái tháo đường', r12: 'Típ ĐTĐ', r13: '(11)', peach: false },
+                        { col: 'L', merge: null, r11: null, r12: 'Năm được chẩn đoán ĐTĐ', r13: '(12)', peach: false },
+                        { col: 'M', merge: 'M11:N11', r11: 'Bệnh sử Tăng huyết áp/Tim mạch', r12: 'Chẩn đoán THA/Tim mạch', r13: '(13)', peach: false },
+                        { col: 'N', merge: null, r11: null, r12: 'Năm được chẩn đoán THA/Tim mạch', r13: '(14)', peach: false },
+                        { col: 'O', merge: 'O11:P11', r11: 'Thị lực hiện tại', r12: 'Mắt Phải', r13: '(15)', peach: false },
+                        { col: 'P', merge: null, r11: null, r12: 'Mắt Trái', r13: '(16)', peach: false },
+                        { col: 'Q', merge: 'Q11:Q12', r11: 'Nhỏ giãn trước khi chụp đáy mắt', r12: null, r13: '(17)', peach: false },
+                        { col: 'R', merge: 'R11:R12', r11: 'Trạng thái tải lên\nCybersgight AI', r12: null, r13: '(18)', peach: false },
+                        { col: 'S', merge: 'S11:T11', r11: 'Chất lượng ảnh tải lên\nCybersgight AI', r12: ' Mắt Phải', r13: '(19)', peach: false },
+                        { col: 'T', merge: null, r11: null, r12: 'Mắt Trái', r13: '(20)', peach: false },
+                        { col: 'U', merge: 'U11:V11', r11: 'Kết quả Cybersgight AI phân độ', r12: ' Mắt Phải ', r13: '(21)', peach: false },
+                        { col: 'V', merge: null, r11: null, r12: 'Mắt Trái', r13: '(22)', peach: false },
+                        { col: 'W', merge: 'W11:W12', r11: 'Kết quả phân độ chung của Cybersgight AI', r12: null, r13: '(23)', peach: false },
+                        { col: 'X', merge: 'X11:Y11', r11: 'Kết luận của BSCK Mắt', r12: 'Mắt Phải', r13: '(24)', peach: false },
+                        { col: 'Y', merge: null, r11: null, r12: 'Mắt Trái', r13: '(25)', peach: false },
+                        { col: 'Z', merge: 'Z11:AA11', r11: 'Phương án theo dõi/xử trí \ntại Bệnh viện', r12: 'Đối với bệnh lý võng mạc', r13: '(26)', peach: false },
+                        { col: 'AA', merge: null, r11: null, r12: 'Đối với bệnh mắt khác', r13: '(27)', peach: false },
+                        { col: 'AB', merge: 'AB11:AB12', r11: 'Chuyển viện: Ghi rõ nơi dự kiến chuyển BN đến', r12: null, r13: '(28)', peach: false },
+                        { col: 'AC', merge: 'AC11:AC12', r11: 'Ghi chú', r12: null, r13: '(29)', peach: false }
+                    ];
+
+                    // Append any user-created custom variables starting at column 30 (AD)
+                    this.customFields.forEach((cfName, cIdx) => {
+                        const colLetter = ws.getColumn(30 + cIdx).letter;
+                        headerSpecs.push({
+                            col: colLetter,
+                            merge: `${colLetter}11:${colLetter}12`,
+                            r11: cfName,
+                            r12: null,
+                            r13: `(${30 + cIdx})`,
+                            peach: false
+                        });
+                    });
+
+                    headerSpecs.forEach(spec => {
+                        const fillObj = spec.peach ? fillPeach : fillGray;
+                        const headerFont = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF000000' } };
+                        const centerWrap = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
+                        if (spec.merge) {
+                            ws.mergeCells(spec.merge);
+                        }
+
+                        const c11 = ws.getCell(`${spec.col}11`);
+                        if (spec.r11 !== null) c11.value = spec.r11;
+                        c11.font = headerFont;
+                        c11.fill = fillObj;
+                        c11.border = borderThinAll;
+                        c11.alignment = centerWrap;
+
+                        const c12 = ws.getCell(`${spec.col}12`);
+                        if (spec.r12 !== null) c12.value = spec.r12;
+                        c12.font = headerFont;
+                        c12.fill = fillObj;
+                        c12.border = borderThinAll;
+                        c12.alignment = centerWrap;
+
+                        const c13 = ws.getCell(`${spec.col}13`);
+                        c13.value = spec.r13;
+                        c13.font = headerFont;
+                        c13.fill = fillObj;
+                        c13.border = borderThinAll;
+                        c13.alignment = centerWrap;
+                    });
+
+                    // ================= ROW 14+: PATIENT DATA ROWS =================
+                    exportRows.forEach((row, idx) => {
+                        const r = 14 + idx;
+                        const rowValues = [
+                            row.soTT || (idx + 1),
+                            this.normalizeDateToDDMMYYYY(row.ngayChup) || '',
+                            row.maCybersight || '',
+                            isOrbisAnonymized ? '' : (row.maBHYT || ''),
+                            isOrbisAnonymized ? '' : (row.hoTen === 'CHƯA NHẬP TÊN' ? '' : (row.hoTen || '')),
+                            isOrbisAnonymized ? '' : (row.xaPhuong || ''),
+                            isOrbisAnonymized ? '' : (row.tinhTP || ''),
+                            isOrbisAnonymized ? '' : (row.lienHe || ''),
+                            row.gioiTinh || '',
+                            this.normalizeDateToDDMMYYYY(row.ngaySinh) || '',
+                            row.tipDTD || '',
+                            row.namDTD !== '' && row.namDTD !== null && row.namDTD !== undefined ? Number(row.namDTD) : '',
+                            row.chanDoanTHA || '',
+                            row.namTHA !== '' && row.namTHA !== null && row.namTHA !== undefined ? Number(row.namTHA) : '',
+                            row.thiLucMP || '',
+                            row.thiLucMT || '',
+                            row.nhoGian || '',
+                            row.trangThaiAI || '',
+                            row.chatLuongMP || '',
+                            row.chatLuongMT || '',
+                            row.phanDoMP || '',
+                            row.phanDoMT || '',
+                            row.ketQuaAIChung || '',
+                            row.ketLuanMP || '',
+                            row.ketLuanMT || '',
+                            row.xuTriVongMac || '',
+                            row.xuTriBenhKhac || '',
+                            row.noiChuyenVien || '',
+                            row.ghiChu || ''
+                        ];
+
+                        this.customFields.forEach(cf => {
+                            rowValues.push(row.customValues && row.customValues[cf] ? row.customValues[cf] : '');
+                        });
+
+                        const excelRow = ws.getRow(r);
+                        rowValues.forEach((val, colIdx0) => {
+                            const colNum = colIdx0 + 1;
+                            const cell = excelRow.getCell(colNum);
+                            cell.value = val;
+
+                            // Columns 19 & 20 (S & T) have red font in template
+                            const isRedQualityCol = (colNum === 19 || colNum === 20);
+                            cell.font = {
+                                name: 'Times New Roman',
+                                size: 11,
+                                bold: false,
+                                color: { argb: isRedQualityCol ? 'FFFF0000' : 'FF000000' }
+                            };
+
+                            // Columns 4..8 (D..H) keep the peach highlight fill
+                            if (colNum >= 4 && colNum <= 8) {
+                                cell.fill = fillPeach;
+                            }
+
+                            cell.border = borderThinAll;
+                            cell.alignment = {
+                                horizontal: (colNum === 1 || colNum === 2 || colNum === 9 || colNum === 10 || colNum === 12 || colNum === 14 || colNum === 15 || colNum === 16 || colNum === 17 || colNum === 19 || colNum === 20) ? 'center' : 'left',
+                                vertical: 'middle',
+                                wrapText: true
+                            };
+                        });
+                    });
+
+                    // ================= DATA VALIDATION DROPDOWNS (MATCHING TEMPLATE) =================
+                    const endValRow = Math.max(lastDataRow, 100);
+                    ws.dataValidations.add('C5', {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12"']
+                    });
+                    ws.dataValidations.add('O3:Q9', {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Có, Không"']
+                    });
+                    ws.dataValidations.add(`I14:I${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Nam, Nữ"']
+                    });
+                    ws.dataValidations.add(`K14:K${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Chưa xác định, Không mắc ĐTĐ, ĐTĐ Típ 1, ĐTĐ Típ 2, ĐTĐ Ko rõ Típ, ĐTĐ Thai kỳ"']
+                    });
+                    ws.dataValidations.add(`M14:M${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Chưa xác định, Không mắc THA, THA chưa điều trị, THA đang điều trị"']
+                    });
+                    ws.dataValidations.add(`Q14:Q${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Có, Không"']
+                    });
+                    ws.dataValidations.add(`R14:R${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Hoàn thành, Chưa hoàn thành, Không tải lên, Khác"']
+                    });
+                    ws.dataValidations.add(`S14:T${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"<=50%, >50%"']
+                    });
+                    ws.dataValidations.add(`U14:V${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"0. Bình thường, 1. Chuyển tuyến (VMĐTĐ), 2. Chuyển tuyến (Bất thường HĐ), 3. Chuyển tuyến (Glocom), 4. Chuyển tuyến (VMĐTĐ+Bất thường HĐ), 5. Chuyển tuyến (VMĐTĐ+Glocom), 6. Chuyển tuyến (Bất thường HĐ+Glocom), 7. Chuyển tuyến (VMĐTĐ+Bất thường HĐ+Glocom)"']
+                    });
+                    ws.dataValidations.add(`W14:W${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"Bình thường, Chuyển tuyến, Khác"']
+                    });
+                    ws.dataValidations.add(`Z14:Z${endValRow}`, {
+                        type: 'list',
+                        allowBlank: true,
+                        formulae: ['"1. Theo dõi và hẹn khám lại, 2. Tiêm nội nhãn, 3. Điều trị laser, 4. Điều trị ngoại khoa, 5. Chuyển viện"']
+                    });
+
+                    // Write & trigger .xlsx download
+                    const buffer = await wb.xlsx.writeBuffer();
+                    const blob = new Blob([buffer], {
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    });
+
+                    const periodTag = (this.periodMode === 'month_year' && this.selectedMonth)
+                        ? `_Thang${this.selectedMonth}-${this.selectedYear}`
+                        : '';
+                    const fileName = isOrbisAnonymized
+                        ? `Bao_Cao_Orbis_AnDanh${periodTag}_${new Date().toISOString().slice(0, 10)}.xlsx`
+                        : `Bao_Cao_DayMat_DayDu${periodTag}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    this.showToast(
+                        isOrbisAnonymized
+                            ? `Đã xuất file Excel chuẩn mẫu Orbis (ẩn cột 4–8) gồm ${exportRows.length} ca!`
+                            : `Đã xuất file Excel chuẩn mẫu báo cáo 2026 gồm ${exportRows.length} ca!`,
+                        "success"
+                    );
+                } catch (err) {
+                    console.error(err);
+                    this.showToast("Lỗi khi tạo file Excel (.xlsx). Vui lòng thử lại!", "error");
+                }
+            }
+        }
+
+        const app = new FundusDashboardApp();
+    </script>
+</body>
+</html>
